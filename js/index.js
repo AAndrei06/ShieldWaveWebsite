@@ -127,7 +127,7 @@ function compar(a,b){
 }
 
 
-alertsDB.onSnapshot((snapshot) => {
+alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
     let docs = snapshot.docs;
     let alertsByDay = {};
     docs.forEach((doc) => {
