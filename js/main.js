@@ -9,7 +9,8 @@ const firebaseConfig = {
 };
 
 const app = firebase.initializeApp(firebaseConfig);
-
+const db = firebase.firestore();
+const storage = firebase.storage();
 const usersDB = firebase.firestore().collection("usersDB");
 const alertsDB = firebase.firestore().collection("alerts");
 

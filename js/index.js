@@ -1,6 +1,17 @@
 let userObject = null;
 let userToken = null;
 
+let translate = {};
+translate["person"] = "Persoană";
+translate["footsteps"] = "Pași";
+translate["voice"] = "Voce";
+translate["door"] = "Ușă deschisă";
+translate["glass"] = "Sticlă spartă";
+translate["cat"] = "Pisică";
+translate["dog"] = "Câine";
+translate["cell phone"] = "Telefon";
+translate["remote"] = "Telecomandă";
+
 let insertAlertsDiv = document.getElementsByClassName("inserted-alerts")[0];
 
 async function getUserData() {
@@ -68,7 +79,7 @@ getUserData()
 
             alertsByDay[dateKey].push({
                 detection_type: doc.data().detection_type,
-                classification: doc.data().classification,
+                classification: translate[doc.data().classification],
                 confidence: doc.data().confidence,
                 link: doc.data().link,
                 time: `${hours}:${minutes}:${seconds}`,
@@ -118,6 +129,40 @@ getUserData()
 });
 
 
+async function deleteAllFilesAndDocs() {
+    try {
+      // Obținem toate documentele din colecția dorită
+      const snapshot = await alertsDB.get();
+  
+      const deletePromises = snapshot.docs.map(async (doc) => {
+        const linkValue = doc.data().link.split("/")[doc.data().link.split("/").length-1];
+        console.log(`Ștergem documentul cu link-ul: ${linkValue}`);
+  
+        // Ștergem documentul din Firestore
+        await doc.ref.delete();
+  
+        // Ștergem fișierul din Firebase Storage
+        const filePath = `detections/${linkValue}`;
+        const fileRef = storage.ref(filePath);
+        await fileRef.delete();
+        console.log(`Fișierul ${filePath} a fost șters din storage.`);
+      });
+  
+      // Așteptăm finalizarea tuturor ștergerilor
+      await Promise.all(deletePromises);
+      console.log('Toate documentele și fișierele au fost șterse.');
+    } catch (error) {
+      console.error('Eroare la ștergerea documentelor și fișierelor:', error);
+    }
+  }
+
+document.querySelector('.delete-all').onclick = () => {
+    let result = confirm("Esti sigur ca vrei sa stergi toate alertele?");
+    if (result == true){
+        deleteAllFilesAndDocs();
+    }
+};
+
 
 document.querySelector(".logout").onclick = () => {
     firebase.auth().signOut().then(() => {
@@ -165,7 +210,7 @@ document.querySelector(".logout").onclick = () => {
 
         alertsByDay[dateKey].push({
             detection_type: doc.data().detection_type,
-            classification: doc.data().classification,
+            classification: translate[doc.data().classification],
             confidence: doc.data().confidence,
             link: doc.data().link,
             time: `${hours}:${minutes}:${seconds}`,
