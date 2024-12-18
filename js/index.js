@@ -126,8 +126,9 @@ document.querySelector(".logout").onclick = () => {
     });
 }
 
-
+console.log("U "+userToken);
 if (userToken != null){
+    console.log("ok");
     alertsDB
     .where("token", "==", userToken)
     .orderBy("detection_time", "desc")
