@@ -201,6 +201,8 @@ alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
 
 
 function updateChartData(newLabels, newData) {
+    alertsChart.data.labels = [];
+    alertsChart.data.datasets[0].data = []; 
     alertsChart.data.labels.unshift(newLabels);
     alertsChart.data.datasets[0].data.unshift(newData)
     alertsChart.update();
