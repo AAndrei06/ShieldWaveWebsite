@@ -136,8 +136,8 @@ alertsDB.onSnapshot((snapshot) => {
 
 
 function updateChartData(newLabels, newData) {
-    alertsChart.data.labels.push(newLabels);
-    alertsChart.data.datasets[0].data.push(newData)
+    alertsChart.data.labels.unshift(newLabels);
+    alertsChart.data.datasets[0].data.unshift(newData)
     alertsChart.update();
 }
 
