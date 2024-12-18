@@ -169,6 +169,8 @@ alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
         });
     });
     let html = "";
+    alertsChart.data.labels = [];
+    alertsChart.data.datasets[0].data = []; 
     for (let dateKey in alertsByDay) {
         html += `
             <div class="date-formated">
@@ -191,6 +193,7 @@ alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
             `;
         });
         let newFormat = dateKey.split('.');
+        
         updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
     }
     insertAlertsDiv.innerHTML = html;
@@ -201,8 +204,6 @@ alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
 
 
 function updateChartData(newLabels, newData) {
-    alertsChart.data.labels = [];
-    alertsChart.data.datasets[0].data = []; 
     alertsChart.data.labels.unshift(newLabels);
     alertsChart.data.datasets[0].data.unshift(newData)
     alertsChart.update();
