@@ -75,7 +75,7 @@ getUserData()
                 doc_id: doc.id
             });
         });
-
+        insertAlertsDiv.innerHTML = "";
         for (let dateKey in alertsByDay) {
             insertAlertsDiv.innerHTML += `
                 <div class="date-formated">
@@ -169,6 +169,7 @@ alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
         });
     });
     let html = "";
+    insertAlertsDiv.innerHTML = "";
     alertsChart.data.labels = [];
     alertsChart.data.datasets[0].data = []; 
     for (let dateKey in alertsByDay) {
