@@ -13,6 +13,7 @@ async function getUserData() {
                     if (!querySnapshot.empty) {
                         userObject = querySnapshot.docs[0].data();
                         userToken = userObject.token;
+                        localStorage.setItem("userTokenShieldWave", userToken);
                     } else {
                         console.log("No user document found with ID:", user.uid);
                     }
@@ -128,7 +129,7 @@ document.querySelector(".logout").onclick = () => {
 
 
     alertsDB
-    .where("token", "==", userToken)
+    .where("token", "==", localStorage.getItem("userTokenShieldWave"))
     .orderBy("detection_time", "desc")
     .onSnapshot((snapshot) => {
     let docs = snapshot.docs;
