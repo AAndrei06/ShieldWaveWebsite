@@ -76,6 +76,8 @@ getUserData()
             });
         });
         insertAlertsDiv.innerHTML = "";
+        alertsChart.data.labels = [];
+        alertsChart.data.datasets[0].data = []; 
         for (let dateKey in alertsByDay) {
             insertAlertsDiv.innerHTML += `
                 <div class="date-formated">
@@ -85,7 +87,7 @@ getUserData()
             `;
             let al = 0;
             alertsByDay[dateKey].forEach(alert => {
-                //incrementAlertCount(alert.classification);
+                incrementAlertCount(alert.classification);
                 al += 1;
                 insertAlertsDiv.innerHTML += `
                     <div class="alert-div" data-id="${alert.doc_id}">
@@ -98,7 +100,7 @@ getUserData()
                 `;
             });
             let newFormat = dateKey.split('.');
-            //updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
+            updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
             
         }
     })
@@ -114,6 +116,8 @@ getUserData()
     console.error("Error:", error);
 });
 
+
+
 document.querySelector(".logout").onclick = () => {
     firebase.auth().signOut().then(() => {
         console.log("logged out");
@@ -122,15 +126,16 @@ document.querySelector(".logout").onclick = () => {
     });
 }
 
-function compar(a,b){
-    return a.data().detection_time - b.data().detection_time;
-}
 
-
-alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
+if (userToken != null){
+    alertsDB
+    .where("token", "==", userToken)
+    .orderBy("detection_time", "desc")
+    .onSnapshot((snapshot) => {
     let docs = snapshot.docs;
     let alertsByDay = {};
     docs.forEach((doc) => {
+        console.log("Hello");
         let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
         let color_class = "red-class";
         let confidence = doc.data().confidence;
@@ -202,7 +207,7 @@ alertsDB.orderBy("detection_time", "desc").onSnapshot((snapshot) => {
 }, (error) => {
     console.error(error);
 });
-
+}
 
 function updateChartData(newLabels, newData) {
     alertsChart.data.labels.unshift(newLabels);
