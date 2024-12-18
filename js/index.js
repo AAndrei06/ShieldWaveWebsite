@@ -128,32 +128,12 @@ function compar(a,b){
 
 
 alertsDB.onSnapshot((snapshot) => {
-    console.log("Added new");
-
-}, (error) => {
-    console.error(error);
-});
-
-
-function updateChartData(newLabels, newData) {
-    alertsChart.data.labels.unshift(newLabels);
-    alertsChart.data.datasets[0].data.unshift(newData)
-    alertsChart.update();
-}
-
-/*
-    let alerts = snapshot.docs;
-    console.log(alerts);
-    console.log(alerts[0].data());
-    let al = 0;
-    let html = "";
-    insertAlertsDiv.innerHTML = "";
-    for (let doc of alerts){
-        al += 1;
+    let docs = snapshot.docs;
+    let alertsByDay = {};
+    docs.forEach((doc) => {
         let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
         let color_class = "red-class";
         let confidence = doc.data().confidence;
-        
         if (confidence >= 80){
             color_class = "green-class";
         } else if (confidence < 80 && confidence >= 60){
@@ -172,17 +152,60 @@ function updateChartData(newLabels, newData) {
         let minutes = dateObject.getMinutes().toString().padStart(2, '0');
         let seconds = dateObject.getSeconds().toString().padStart(2, '0');
 
+        let dateKey = `${day}.${month}.${year}`;
+
+        if (!alertsByDay[dateKey]) {
+            alertsByDay[dateKey] = [];
+        }
+
+        alertsByDay[dateKey].push({
+            detection_type: doc.data().detection_type,
+            classification: doc.data().classification,
+            confidence: doc.data().confidence,
+            link: doc.data().link,
+            time: `${hours}:${minutes}:${seconds}`,
+            color_class: color_class,
+            doc_id: doc.id
+        });
+    });
+    let html = "";
+    for (let dateKey in alertsByDay) {
         html += `
-            <div class="alert-div">
-                <div>${doc.data().detection_type}</div>
-                <div class="hour-of-alert">${hours}:${minutes}:${seconds}</div>
-                <div>${doc.data().classification}</div>
-                <div><div class="probability ${color_class}">${confidence}%</div></div>
-                <div class="link-obj"><a href="${doc.data().link}">${doc.data().detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+            <div class="date-formated">
+                <div class="the-line"></div>
+                <div class="actual-date">${dateKey}</div>
             </div>
         `;
+        let al = 0;
+        alertsByDay[dateKey].forEach(alert => {
+            incrementAlertCount(alert.classification);
+            al += 1;
+            html += `
+                <div class="alert-div" data-id="${alert.doc_id}">
+                    <div>${alert.detection_type}</div>
+                    <div class="hour-of-alert">${alert.time}</div>
+                    <div>${alert.classification}</div>
+                    <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
+                    <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                </div>
+            `;
+        });
+        let newFormat = dateKey.split('.');
+        updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
     }
-    insertAlertsDiv.innerHTML = "html";*/
+    insertAlertsDiv.innerHTML = html;
+
+}, (error) => {
+    console.error(error);
+});
+
+
+function updateChartData(newLabels, newData) {
+    alertsChart.data.labels.unshift(newLabels);
+    alertsChart.data.datasets[0].data.unshift(newData)
+    alertsChart.update();
+}
+
 
 const ctx = document.getElementById('alertsChart').getContext('2d');
 const alertsChart = new Chart(ctx, {
