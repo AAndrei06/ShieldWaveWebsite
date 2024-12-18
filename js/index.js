@@ -85,7 +85,7 @@ getUserData()
             `;
             let al = 0;
             alertsByDay[dateKey].forEach(alert => {
-                incrementAlertCount(alert.classification);
+                //incrementAlertCount(alert.classification);
                 al += 1;
                 insertAlertsDiv.innerHTML += `
                     <div class="alert-div" data-id="${alert.doc_id}">
@@ -98,7 +98,7 @@ getUserData()
                 `;
             });
             let newFormat = dateKey.split('.');
-            updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
+            //updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
             
         }
     })
