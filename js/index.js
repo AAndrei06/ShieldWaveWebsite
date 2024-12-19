@@ -117,6 +117,7 @@ getUserData()
 
         alertsChart1.data.labels = hourLabels;
         alertsChart1.data.datasets[0].data = detectionsPerHour;
+        alertsChart1.update();
 
         insertAlertsDiv.innerHTML = "";
         alertsChart.data.labels = [];
@@ -282,6 +283,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
     });
     alertsChart1.data.labels = hourLabels;
     alertsChart1.data.datasets[0].data = detectionsPerHour;
+    alertsChart1.update();
     let html = "";
     insertAlertsDiv.innerHTML = "";
     alertsChart.data.labels = [];
