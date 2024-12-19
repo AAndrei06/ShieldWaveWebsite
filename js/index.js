@@ -170,8 +170,19 @@ document.querySelector('.delete-all').onclick = () => {
 };
 
 
+document.querySelector('.deactivate').onclick = () => {
+    deactivationsDB.add({
+        user_token: localStorage.getItem("userTokenShieldWave"),
+        state: true
+    }).then(() => {
+        alert("Camera se va dezactiva în 10 secunde!!!");
+    });
+}
+
+
 document.querySelector(".logout").onclick = () => {
     firebase.auth().signOut().then(() => {
+        localStorage.removeItem("userTokenShieldWave");
         console.log("logged out");
     }).catch((error) => {
         console.log(error);
