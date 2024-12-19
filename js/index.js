@@ -90,6 +90,12 @@ getUserData()
         insertAlertsDiv.innerHTML = "";
         alertsChart.data.labels = [];
         alertsChart.data.datasets[0].data = []; 
+
+        alertData.datasets[0].backgroundColor = [];
+        alertData.datasets[0].borderColor = [];
+        alertData.labels = [];
+        alertData.datasets[0].data = [];
+
         for (let dateKey in alertsByDay) {
             insertAlertsDiv.innerHTML += `
                 <div class="date-formated">
@@ -222,6 +228,12 @@ document.querySelector(".logout").onclick = () => {
     insertAlertsDiv.innerHTML = "";
     alertsChart.data.labels = [];
     alertsChart.data.datasets[0].data = []; 
+
+    alertData.datasets[0].backgroundColor = [];
+    alertData.datasets[0].borderColor = [];
+    alertData.labels = [];
+    alertData.datasets[0].data = [];
+
     for (let dateKey in alertsByDay) {
         html += `
             <div class="date-formated">
@@ -567,6 +579,8 @@ function addNewAlert(alertCategory, alertDataCount) {
 }
 
 function incrementAlertCount(alertCategory) {
+
+
     const categoryIndex = alertData.labels.indexOf(alertCategory);
     
     if (categoryIndex !== -1) {
