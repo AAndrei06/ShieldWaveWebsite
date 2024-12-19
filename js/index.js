@@ -49,6 +49,26 @@ getUserData()
     .get()
     .then((querySnapshot) => {
         let alertsByDay = {};
+
+        let presentNow = new Date();
+        let past24h = new Date(presentNow);
+        past24h.setHours(presentNow.getHours() - 24);
+
+        console.log("Curent: ",presentNow);
+        console.log("Trecut 24h: ",past24h);
+
+        let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
+        console.log(detectionsPerHour);
+        let hourLabels = [];
+        let tmp = new Date(presentNow);
+        for (let i = 0;i < 24;i++){
+            
+            hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
+            tmp.setHours(tmp.getHours() - 1);
+        }
+        hourLabels.reverse();
+        console.log(hourLabels);
+
         querySnapshot.forEach((doc) => {
             let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
             let color_class = "red-class";
@@ -71,6 +91,11 @@ getUserData()
             let minutes = dateObject.getMinutes().toString().padStart(2, '0');
             let seconds = dateObject.getSeconds().toString().padStart(2, '0');
 
+            if (dateObject >= past24h && dateObject <= presentNow){
+                let index = hourLabels.indexOf(`${hours}:00`)
+                detectionsPerHour[index]++;
+            }
+
             let dateKey = `${day}.${month}.${year}`;
 
             if (!alertsByDay[dateKey]) {
@@ -87,6 +112,12 @@ getUserData()
                 doc_id: doc.id
             });
         });
+        console.log(detectionsPerHour);
+        console.log(hourLabels);
+
+        alertsChart1.data.labels = hourLabels;
+        alertsChart1.data.datasets[0].data = detectionsPerHour;
+
         insertAlertsDiv.innerHTML = "";
         alertsChart.data.labels = [];
         alertsChart.data.datasets[0].data = []; 
@@ -137,24 +168,20 @@ getUserData()
 
 async function deleteAllFilesAndDocs() {
     try {
-      // Obținem toate documentele din colecția dorită
       const snapshot = await alertsDB.get();
   
       const deletePromises = snapshot.docs.map(async (doc) => {
         const linkValue = doc.data().link.split("/")[doc.data().link.split("/").length-1];
         console.log(`Ștergem documentul cu link-ul: ${linkValue}`);
-  
-        // Ștergem documentul din Firestore
+
         await doc.ref.delete();
   
-        // Ștergem fișierul din Firebase Storage
         const filePath = `detections/${linkValue}`;
         const fileRef = storage.ref(filePath);
         await fileRef.delete();
         console.log(`Fișierul ${filePath} a fost șters din storage.`);
       });
   
-      // Așteptăm finalizarea tuturor ștergerilor
       await Promise.all(deletePromises);
       console.log('Toate documentele și fișierele au fost șterse.');
     } catch (error) {
@@ -179,7 +206,6 @@ document.querySelector('.deactivate').onclick = () => {
     });
 }
 
-
 document.querySelector(".logout").onclick = () => {
     firebase.auth().signOut().then(() => {
         localStorage.removeItem("userTokenShieldWave");
@@ -190,14 +216,28 @@ document.querySelector(".logout").onclick = () => {
 }
 
 
-    alertsDB
-    .where("token", "==", localStorage.getItem("userTokenShieldWave"))
-    .orderBy("detection_time", "desc")
-    .onSnapshot((snapshot) => {
+alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
     let docs = snapshot.docs;
     let alertsByDay = {};
+    let presentNow = new Date();
+    let past24h = new Date(presentNow);
+    past24h.setHours(presentNow.getHours() - 24);
+
+    console.log("Curent: ",presentNow);
+    console.log("Trecut 24h: ",past24h);
+
+    let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
+    console.log(detectionsPerHour);
+    let hourLabels = [];
+    let tmp = new Date(presentNow);
+    for (let i = 0;i < 24;i++){
+        
+        hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
+        tmp.setHours(tmp.getHours() - 1);
+    }
+    hourLabels.reverse();
+    console.log(hourLabels);
     docs.forEach((doc) => {
-        console.log("Hello");
         let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
         let color_class = "red-class";
         let confidence = doc.data().confidence;
@@ -219,6 +259,11 @@ document.querySelector(".logout").onclick = () => {
         let minutes = dateObject.getMinutes().toString().padStart(2, '0');
         let seconds = dateObject.getSeconds().toString().padStart(2, '0');
 
+        if (dateObject >= past24h && dateObject <= presentNow){
+            let index = hourLabels.indexOf(`${hours}:00`)
+            detectionsPerHour[index]++;
+        }
+
         let dateKey = `${day}.${month}.${year}`;
 
         if (!alertsByDay[dateKey]) {
@@ -235,6 +280,8 @@ document.querySelector(".logout").onclick = () => {
             doc_id: doc.id
         });
     });
+    alertsChart1.data.labels = hourLabels;
+    alertsChart1.data.datasets[0].data = detectionsPerHour;
     let html = "";
     insertAlertsDiv.innerHTML = "";
     alertsChart.data.labels = [];
@@ -402,9 +449,9 @@ const ctx1 = document.getElementById('alertsChart24h').getContext('2d');
 const alertsChart1 = new Chart(ctx1, {
     type: 'line',
     data: {
-        labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+        labels: [],
         datasets: [{
-            data: [4, 6, 8, 5, 7, 10, 12, 15, 20, 18, 14, 10, 8, 5, 6, 9, 12, 16, 20, 18, 14, 12, 8, 5],
+            data: [],
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 2,
