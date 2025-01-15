@@ -144,8 +144,13 @@ getUserData()
         alertData.labels = [];
         alertData.datasets[0].data = [];
 
+        let html = "";
+        const lastWeekDate = new Date();
+        const today = new Date();
+        lastWeekDate.setDate(today.getDate() - 7);
         for (let dateKey in alertsByDay) {
-            insertAlertsDiv.innerHTML += `
+            console.log(dateKey);
+            html += `
                 <div class="date-formated">
                     <div class="the-line"></div>
                     <div class="actual-date">${dateKey}</div>
@@ -155,7 +160,7 @@ getUserData()
             alertsByDay[dateKey].forEach(alert => {
                 incrementAlertCount(alert.classification);
                 al += 1;
-                insertAlertsDiv.innerHTML += `
+                html += `
                     <div class="alert-div" data-id="${alert.doc_id}">
                         <div>${alert.detection_type}</div>
                         <div class="hour-of-alert">${alert.time}</div>
@@ -166,16 +171,27 @@ getUserData()
                 `;
             });
             let newFormat = dateKey.split('.');
-            updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
-            
+            console.log("12");
+            console.log(lastWeekDate)
+            const dft = new Date()
+            dft.setDate(newFormat[0])
+            dft.setMonth(newFormat[1])
+            dft.setFullYear(newFormat[2])
+            console.log(dft)
+            console.log("12");
+            if (dft > lastWeekDate){
+                updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
+                console.log("Hello");
+            }
         }
-    })
-    .then(() => {
-        document.body.style.display = "block";
-    })
-    .catch((error) => {
-        console.log("Error getting documents: ", error);
-    });
+        insertAlertsDiv.innerHTML = html;
+        })
+        .then(() => {
+            document.body.style.display = "block";
+        })
+        .catch((error) => {
+            console.log("Error getting documents: ", error);
+        });
 
 })
 .catch((error) => {
@@ -240,11 +256,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
     let past24h = new Date(presentNow);
     past24h.setHours(presentNow.getHours() - 24);
 
-    console.log("Curent: ",presentNow);
-    console.log("Trecut 24h: ",past24h);
-
     let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
-    console.log(detectionsPerHour);
     let hourLabels = [];
     let tmp = new Date(presentNow);
     for (let i = 0;i < 24;i++){
@@ -253,7 +265,6 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         tmp.setHours(tmp.getHours() - 1);
     }
     hourLabels.reverse();
-    console.log(hourLabels);
     docs.forEach((doc) => {
         let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
         let color_class = "red-class";
@@ -300,7 +311,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
     alertsChart1.data.labels = hourLabels;
     alertsChart1.data.datasets[0].data = detectionsPerHour;
     alertsChart1.update();
-    let html = "";
+    
     insertAlertsDiv.innerHTML = "";
     alertsChart.data.labels = [];
     alertsChart.data.datasets[0].data = []; 
@@ -309,8 +320,12 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
     alertData.datasets[0].borderColor = [];
     alertData.labels = [];
     alertData.datasets[0].data = [];
-
+    let html = "";
+    const lastWeekDate = new Date();
+    const today = new Date();
+    lastWeekDate.setDate(today.getDate() - 7);
     for (let dateKey in alertsByDay) {
+        console.log(dateKey);
         html += `
             <div class="date-formated">
                 <div class="the-line"></div>
@@ -332,8 +347,18 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
             `;
         });
         let newFormat = dateKey.split('.');
-        
-        updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
+        console.log("12");
+        console.log(lastWeekDate)
+        const dft = new Date()
+        dft.setDate(newFormat[0])
+        dft.setMonth(newFormat[1])
+        dft.setFullYear(newFormat[2])
+        console.log(dft)
+        console.log("12");
+        if (dft > lastWeekDate){
+            updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
+            console.log("Hello");
+        }
     }
     insertAlertsDiv.innerHTML = html;
 
