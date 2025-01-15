@@ -2,15 +2,31 @@ let userObject = null;
 let userToken = null;
 
 let translate = {};
+
+LIST_OF_VALID = ['person','bicycle','car','motorcycle','bus','truck','bird','cat','dog','horse','sheep',
+    'cow','elephant','bear','zebra']
+
+//Video
 translate["person"] = "Persoană";
+translate["bicycle"] = "Bicicletă/Motocicletă";
+translate["motorcycle"] = "Bicicletă/Motocicletă";
+translate["bus"] = "Vehicul";
+translate["truck"] = "Vehicul";
+translate["bird"] = "Pasăre";
+translate["cat"] = "Animal";
+translate["dog"] = "Animal";
+translate["horse"] = "Animal";
+translate["sheep"] = "Animal";
+translate["cow"] = "Animal";
+translate["elephant"] = "Animal";
+translate["bear"] = "Animal";
+translate["zebra"] = "Animal";
+
+// Audio
 translate["footsteps"] = "Pași";
 translate["voice"] = "Voce";
 translate["door"] = "Ușă deschisă";
 translate["glass"] = "Sticlă spartă";
-translate["cat"] = "Pisică";
-translate["dog"] = "Câine";
-translate["cell phone"] = "Telefon";
-translate["remote"] = "Telecomandă";
 
 let insertAlertsDiv = document.getElementsByClassName("inserted-alerts")[0];
 
