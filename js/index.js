@@ -1,6 +1,21 @@
+var map = L.map('map-leaflet').setView([51.505, -0.09], 13);
+
+var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
+osm.addTo(map);
+
+
+
+
+
+
+
+
+
+
 let userObject = null;
 let userToken = null;
-
 let translate = {};
 
 LIST_OF_VALID = ['person','bicycle','car','motorcycle','bus','truck','bird','cat','dog','horse','sheep',
@@ -21,6 +36,7 @@ translate["cow"] = "Animal";
 translate["elephant"] = "Animal";
 translate["bear"] = "Animal";
 translate["zebra"] = "Animal";
+translate["Necunoscut"] = "Mișcare";
 
 // Audio
 translate["footsteps"] = "Pași";
@@ -336,6 +352,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         alertsByDay[dateKey].forEach(alert => {
             incrementAlertCount(alert.classification);
             al += 1;
+            if (alert.classification == "")
             html += `
                 <div class="alert-div" data-id="${alert.doc_id}">
                     <div>${alert.detection_type}</div>

@@ -42,6 +42,14 @@ main{
     width: calc(100%);
     background-color: var(--back-white);
     height: 570px;
+    border-radius: 10px;
+}
+
+#map-leaflet{
+
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
 }
 
 .video-section > img{
