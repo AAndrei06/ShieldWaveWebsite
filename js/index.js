@@ -1,16 +1,15 @@
-var map = L.map('map-leaflet').setView([51.505, -0.09], 13);
-
-var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-});
-osm.addTo(map);
-
-
-
-
-
-
-
+var swiper = new Swiper(".mySwiper", {
+    cssMode: true,
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    pagination: {
+      el: ".swiper-pagination",
+    },
+    mousewheel: true,
+    keyboard: true,
+  });
 
 
 
@@ -86,11 +85,7 @@ getUserData()
         let past24h = new Date(presentNow);
         past24h.setHours(presentNow.getHours() - 24);
 
-        console.log("Curent: ",presentNow);
-        console.log("Trecut 24h: ",past24h);
-
         let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
-        console.log(detectionsPerHour);
         let hourLabels = [];
         let tmp = new Date(presentNow);
         for (let i = 0;i < 24;i++){
@@ -99,7 +94,6 @@ getUserData()
             tmp.setHours(tmp.getHours() - 1);
         }
         hourLabels.reverse();
-        console.log(hourLabels);
 
         querySnapshot.forEach((doc) => {
             let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
@@ -144,8 +138,7 @@ getUserData()
                 doc_id: doc.id
             });
         });
-        console.log(detectionsPerHour);
-        console.log(hourLabels);
+
 
         alertsChart1.data.labels = hourLabels;
         alertsChart1.data.datasets[0].data = detectionsPerHour;
@@ -165,7 +158,6 @@ getUserData()
         const today = new Date();
         lastWeekDate.setDate(today.getDate() - 7);
         for (let dateKey in alertsByDay) {
-            console.log(dateKey);
             html += `
                 <div class="date-formated">
                     <div class="the-line"></div>
@@ -187,17 +179,14 @@ getUserData()
                 `;
             });
             let newFormat = dateKey.split('.');
-            console.log("12");
-            console.log(lastWeekDate)
+
             const dft = new Date()
             dft.setDate(newFormat[0])
             dft.setMonth(newFormat[1])
             dft.setFullYear(newFormat[2])
-            console.log(dft)
-            console.log("12");
+
             if (dft > lastWeekDate){
                 updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
-                console.log("Hello");
             }
         }
         insertAlertsDiv.innerHTML = html;
@@ -245,6 +234,7 @@ document.querySelector('.delete-all').onclick = () => {
     }
 };
 
+console.log(localStorage.getItem('userTokenShieldWave'));
 
 document.querySelector('.deactivate').onclick = () => {
     deactivationsDB.add({
@@ -341,7 +331,6 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
     const today = new Date();
     lastWeekDate.setDate(today.getDate() - 7);
     for (let dateKey in alertsByDay) {
-        console.log(dateKey);
         html += `
             <div class="date-formated">
                 <div class="the-line"></div>
@@ -364,17 +353,14 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
             `;
         });
         let newFormat = dateKey.split('.');
-        console.log("12");
-        console.log(lastWeekDate)
+
         const dft = new Date()
         dft.setDate(newFormat[0])
         dft.setMonth(newFormat[1])
         dft.setFullYear(newFormat[2])
-        console.log(dft)
-        console.log("12");
+
         if (dft > lastWeekDate){
             updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
-            console.log("Hello");
         }
     }
     insertAlertsDiv.innerHTML = html;
@@ -382,6 +368,75 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
 }, (error) => {
     console.error(error);
 });
+
+linksDB.where("token","==",localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
+    let docs = snapshot.docs;
+    let container = document.querySelector('.swiper-wrapper');
+    container.innerHTML = "";
+    for (let doc of docs){
+        for (let link of doc.data().links){
+            container.innerHTML += `
+                <div class="swiper-slide">
+                    <iframe width="100%" height="100%"
+                        src="${link}"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            `;
+        }
+    }
+});
+
+document.querySelector('.delete-all-links').onclick = async () => {
+
+    const querySnapshot = await linksDB
+        .where("token", "==", localStorage.getItem("userTokenShieldWave"))
+        .get();
+
+    if (querySnapshot.empty) {
+        alert("Nu s-a găsit nici un link");
+    } else {
+        querySnapshot.forEach((doc) => {
+            linksDB.doc(doc.id).delete().then(() => {
+                alert("Au fost șterse toate link-urile");
+            });
+        });
+    }
+};
+
+
+document.querySelector('.link-btn').onclick = async () => {
+    let link = document.getElementsByName('link-for-live')[0].value;
+
+    if (link.startsWith('https://www.youtube.com/embed/')) {
+        const querySnapshot = await linksDB
+            .where("token", "==", localStorage.getItem("userTokenShieldWave"))
+            .get();
+
+        if (querySnapshot.empty) {
+            linksDB.add({
+                token: localStorage.getItem("userTokenShieldWave"),
+                links: [link]
+            }).then(() => {
+                document.getElementsByName('link-for-live')[0].value = "";
+            });
+        } else {
+            querySnapshot.forEach((doc) => {
+                let links = doc.data().links;
+                links.push(link);
+
+                linksDB.doc(doc.id).update({
+                    links: links
+                }).then(() => {
+                    document.getElementsByName('link-for-live')[0].value = "";
+                });
+            });
+        }
+    } else {
+        alert("not good");
+    }
+};
+
 
 
 function updateChartData(newLabels, newData) {

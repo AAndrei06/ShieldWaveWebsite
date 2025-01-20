@@ -45,11 +45,78 @@ main{
     border-radius: 10px;
 }
 
-#map-leaflet{
+.link-input-box{
+    width: calc(100% - 200px);
+    position: absolute;
+    bottom: 57px;
+    border-radius: 5px;
+    margin-left: 1%;
+    display: flex;
+    flex-direction: column;
+    gap:10px
+}
 
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
+.link-field{
+    height: 40px;
+    width: auto;
+    z-index: 99;
+    outline: 0;
+    font-size: 25px;
+    border-radius: 5px;
+    border: 1px solid gray;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.link-btn{
+    font-family: Roboto;
+    width: auto;
+    height: 40px;
+    font-size: 20px;
+    z-index: 99;
+    cursor: pointer;
+    border-radius: 5px;
+    color: white;
+    align-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    background-color: green;
+}
+
+.link-btn > div{
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.option-btn{
+    height: 40px;
+    width: 33.3%;
+    color: white;
+    align-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.option-btn > div{
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.options{
+    margin-left: 1%;
+    width: 98%;
+    height: 40px;
+    position: absolute;
+    bottom: 0px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-bottom: 6px;
 }
 
 .video-section > img{
@@ -309,17 +376,7 @@ main{
     font-weight: 700;
 }
 
-.options{
-    padding-left: 1%;
-    width: 98%;
-    height: 40px;
-    position: absolute;
-    bottom: 0px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    margin-bottom: 6px;
-}
+
 
 .line-tok{
     margin-left: auto;
@@ -343,23 +400,7 @@ main{
     float: right;
 }
 
-.option-btn{
-    height: 40px;
-    width: 33.3%;
-    color: white;
-    align-content: center;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    border-radius: 5px;
-    cursor: pointer;
-}
 
-.option-btn > div{
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: 700;
-    font-size: 17px;
-}
 
 .deactivate{
     background-color: #135659;
