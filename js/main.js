@@ -14,6 +14,8 @@ const storage = firebase.storage();
 const usersDB = firebase.firestore().collection("usersDB");
 const alertsDB = firebase.firestore().collection("alerts");
 const deactivationsDB = firebase.firestore().collection("deactivations");
+const cameraDeactivateDB = firebase.firestore().collection("deactivateCameras");
+const microphoneDeactivateDB = firebase.firestore().collection("deactivateMicrophones");
 const linksDB = firebase.firestore().collection("links");
 
 function validateEmail(email){

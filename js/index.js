@@ -237,11 +237,38 @@ document.querySelector('.delete-all').onclick = () => {
 console.log(localStorage.getItem('userTokenShieldWave'));
 
 document.querySelector('.deactivate').onclick = () => {
-    deactivationsDB.add({
+    deactivationsDB.where("user_token", "==", userToken).get()
+    .then((querySnapshot) => {
+        let doIt = true;
+        querySnapshot.forEach((doc) => {
+            doIt = false;
+        });
+        if (doIt){
+            deactivationsDB.add({
+                user_token: localStorage.getItem("userTokenShieldWave"),
+                state: true
+            }).then(() => {
+                alert("Sistemul se va dezactiva în 10 secunde!!!");
+            });
+        }
+    })
+}
+
+document.querySelector('.stop-cam').onclick = () => {
+    cameraDeactivateDB.add({
         user_token: localStorage.getItem("userTokenShieldWave"),
         state: true
     }).then(() => {
         alert("Camera se va dezactiva în 10 secunde!!!");
+    });
+}
+
+document.querySelector('.stop-mic').onclick = () => {
+    microphoneDeactivateDB.add({
+        user_token: localStorage.getItem("userTokenShieldWave"),
+        state: true
+    }).then(() => {
+        alert("Microfonul se va dezactiva în 10 secunde!!!");
     });
 }
 
