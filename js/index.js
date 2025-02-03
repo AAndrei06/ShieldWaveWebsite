@@ -255,21 +255,39 @@ document.querySelector('.deactivate').onclick = () => {
 }
 
 document.querySelector('.stop-cam').onclick = () => {
-    cameraDeactivateDB.add({
-        user_token: localStorage.getItem("userTokenShieldWave"),
-        state: true
-    }).then(() => {
-        alert("Camera se va dezactiva în 10 secunde!!!");
-    });
+    cameraDeactivateDB.where("user_token", "==", userToken).get()
+    .then((querySnapshot) => {
+        let doIt = true;
+        querySnapshot.forEach((doc) => {
+            doIt = false;
+        });
+        if (doIt){
+            cameraDeactivateDB.add({
+                user_token: localStorage.getItem("userTokenShieldWave"),
+                state: true
+            }).then(() => {
+                alert("Camera se va dezactiva în 10 secunde!!!");
+            });
+        }
+    })
 }
 
 document.querySelector('.stop-mic').onclick = () => {
-    microphoneDeactivateDB.add({
-        user_token: localStorage.getItem("userTokenShieldWave"),
-        state: true
-    }).then(() => {
-        alert("Microfonul se va dezactiva în 10 secunde!!!");
-    });
+    microphoneDeactivateDB.where("user_token", "==", userToken).get()
+    .then((querySnapshot) => {
+        let doIt = true;
+        querySnapshot.forEach((doc) => {
+            doIt = false;
+        });
+        if (doIt){
+            microphoneDeactivateDB.add({
+                user_token: localStorage.getItem("userTokenShieldWave"),
+                state: true
+            }).then(() => {
+                alert("Microfonul se va dezactiva în 10 secunde!!!");
+            });
+        }
+    })
 }
 
 document.querySelector(".logout").onclick = () => {
