@@ -1,15 +1,37 @@
 var swiper = new Swiper(".mySwiper", {
     cssMode: true,
     navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
     },
     pagination: {
-      el: ".swiper-pagination",
+        el: ".swiper-pagination",
     },
     mousewheel: true,
     keyboard: true,
-  });
+});
+
+let codeForBtnsAlert = "none";
+let yesBtn = document.querySelector(".yes-op");
+let noBtn = document.querySelector(".no-op");
+
+function showAlert(textAlert, showBtn = false){
+    let alertsBtn = document.querySelector('.alert-btns');
+    if (!showBtn){
+        alertsBtn.style.display = "none";
+    }
+    let alertDiv = document.getElementsByClassName("alert-bar")[0];
+    let text = alertDiv.getElementsByTagName("h3")[0];
+    text.innerText = textAlert;
+    alertDiv.style.display = "flex";
+
+    if (!showBtn){
+        setTimeout(() => {
+            alertDiv.style.display = "none";
+            text.innerText = "";
+        },5000);
+    }
+}
 
 
 
@@ -178,12 +200,12 @@ getUserData()
                     </div>
                 `;
             });
-            let newFormat = dateKey.split('.');
 
+            let newFormat = dateKey.split('.');
             const dft = new Date()
-            dft.setDate(newFormat[0])
-            dft.setMonth(newFormat[1])
-            dft.setFullYear(newFormat[2])
+            dft.setFullYear(Number(newFormat[2]))
+            dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1])-1 : Number(newFormat[1][1])-1)
+            dft.setDate(Number(newFormat[0]))
 
             if (dft > lastWeekDate){
                 updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
@@ -235,6 +257,30 @@ document.querySelector('.delete-all').onclick = () => {
 };
 
 console.log(localStorage.getItem('userTokenShieldWave'));
+console.log(yesBtn);
+
+yesBtn.addEventListener("click",() => {
+    console.log(codeForBtnsAlert);
+    
+    if (codeForBtnsAlert == "micDeactivateAsk"){
+        console.log("Enter");
+        microphoneDeactivateDB.add({
+            user_token: localStorage.getItem("userTokenShieldWave"),
+            state: true
+        }).then(() => {
+            showAlert("Microfonul se va dezactiva în 7 secunde!!!");
+            codeForBtnsAlert = "none";
+        });
+    }
+});
+
+noBtn.addEventListener("click",() => {
+    let alertDiv = document.getElementsByClassName("alert-bar")[0];
+    let text = alertDiv.getElementsByTagName("h3")[0];
+    alertDiv.style.display = "none";
+    text.innerText = "";
+})
+
 
 document.querySelector('.deactivate').onclick = () => {
     deactivationsDB.where("user_token", "==", userToken).get()
@@ -248,7 +294,7 @@ document.querySelector('.deactivate').onclick = () => {
                 user_token: localStorage.getItem("userTokenShieldWave"),
                 state: true
             }).then(() => {
-                alert("Sistemul se va dezactiva în 10 secunde!!!");
+                showAlert("Sistemul se va dezactiva în 10 secunde!!!");
             });
         }
     })
@@ -266,7 +312,7 @@ document.querySelector('.stop-cam').onclick = () => {
                 user_token: localStorage.getItem("userTokenShieldWave"),
                 state: true
             }).then(() => {
-                alert("Camera se va dezactiva în 10 secunde!!!");
+                showAlert("Camera se va dezactiva în 10 secunde!!!");
             });
         }
     })
@@ -280,12 +326,8 @@ document.querySelector('.stop-mic').onclick = () => {
             doIt = false;
         });
         if (doIt){
-            microphoneDeactivateDB.add({
-                user_token: localStorage.getItem("userTokenShieldWave"),
-                state: true
-            }).then(() => {
-                alert("Microfonul se va dezactiva în 10 secunde!!!");
-            });
+            codeForBtnsAlert = "micDeactivateAsk";
+            showAlert("Ești sigur că vrei să dezactivezi microfonul?",true);
         }
     })
 }
@@ -398,13 +440,16 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
             `;
         });
         let newFormat = dateKey.split('.');
-
         const dft = new Date()
-        dft.setDate(newFormat[0])
-        dft.setMonth(newFormat[1])
-        dft.setFullYear(newFormat[2])
-
+        dft.setFullYear(Number(newFormat[2]))
+        dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1])-1 : Number(newFormat[1][1])-1)
+        dft.setDate(Number(newFormat[0]))
+        
+        /*
+        console.log(dft);
+        console.log(lastWeekDate);*/
         if (dft > lastWeekDate){
+            console.log(dft);
             updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
         }
     }
@@ -414,12 +459,16 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
     console.error(error);
 });
 
+
 linksDB.where("token","==",localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
     let docs = snapshot.docs;
     let container = document.querySelector('.swiper-wrapper');
+    let notVideo = document.querySelector('.not-video');
+    notVideo.style.display = "block";
     container.innerHTML = "";
     for (let doc of docs){
         for (let link of doc.data().links){
+            notVideo.style.display = "none";
             container.innerHTML += `
                 <div class="swiper-slide">
                     <iframe width="100%" height="100%"
@@ -439,11 +488,11 @@ document.querySelector('.delete-all-links').onclick = async () => {
         .get();
 
     if (querySnapshot.empty) {
-        alert("Nu s-a găsit nici un link");
+        showAlert("Nu s-a găsit nici un link!!!");
     } else {
         querySnapshot.forEach((doc) => {
             linksDB.doc(doc.id).delete().then(() => {
-                alert("Au fost șterse toate link-urile");
+                showAlert("Au fost șterse toate link-urile!!!");
             });
         });
     }

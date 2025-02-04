@@ -56,6 +56,103 @@ main{
     gap:10px
 }
 
+.fa-face-meh{
+    font-size: 90px;
+    margin: 0px;
+    color: rgb(51, 51, 51);
+    font-weight: bold;
+}
+
+.not-video{
+    width: 300px;
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 18%;
+    text-align: center;
+}
+
+.main-alert{
+    display: flex;
+    gap: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+.alert-btns{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 10px;
+    width: 170px;
+}
+
+.aux{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.alert-op{
+    width: 80px;
+    height: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+}
+
+.no-op{
+    background-color: #db0b0b;
+}
+
+.no-op:hover{
+    background-color: #a42d24;
+}
+
+.yes-op{
+    background-color:#135659;
+}
+
+.yes-op:hover{
+    background-color: #0d484b;
+}
+
+.alert-bar{
+    width: calc(100% - 2px);
+    height: 74px;
+    background-color: #fff3cd;
+    color: #a67820;
+    position: absolute;
+    z-index: 100;
+    border: 1px solid #a67820;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    display: none;
+}
+
+.alert-bar > div > h3{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+
+.not-video > h2{
+    margin: 0px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(51, 51, 51);
+    font-weight: bold;
+}
+
 .link-field{
     height: 40px;
     width: auto;

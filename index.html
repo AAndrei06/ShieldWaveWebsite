@@ -8,8 +8,6 @@
 	<script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-firestore.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-storage.js"></script>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -18,6 +16,23 @@
 	<title>ShieldWaveAI | Home</title>
 </head>
 <body>
+	<div class="alert-bar">
+		<div class="main-alert">
+			<h3>Esti sigur ca vrei sa stergi toate alertele?</h3>
+			<div class="aux">
+				<div class="alert-btns">
+					<div class="alert-op no-op">
+						NU
+					</div>
+					<div class = "alert-op yes-op">
+						DA
+					</div>
+				</div>
+			</div>
+		
+		</div>
+
+	</div>
 	<main>
 		<div class="main-container">
 			<div class="left-section">
@@ -110,8 +125,13 @@
 			</div>
 			<div class="right-section">
 				<div class="video-section">
+					<div class = "not-video">
+						<i class="fa-regular fa-face-meh"></i>
+						<h2>Nu este nimic de afișat</h2>
+					</div>
 					<div class="swiper mySwiper">
 						<div class="swiper-wrapper">
+							<!--
 							<div class="swiper-slide">
 								<iframe width="100%" height="100%"
 									src="https://www.youtube.com/embed/0-ULTdNUtDo?si=g1Kvf_LJADnBQQXE"
@@ -119,6 +139,7 @@
 									referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
 								</iframe>
 							</div>
+							-->
 							<div class="swiper-slide">Slide 2</div>
 						</div>
 						<div class="swiper-button-next"></div>
