@@ -15,10 +15,10 @@ let codeForBtnsAlert = "none";
 let yesBtn = document.querySelector(".yes-op");
 let noBtn = document.querySelector(".no-op");
 
-function showAlert(textAlert, showBtn = false){
+function showAlert(textAlert, showBtn = false) {
     let alertsBtn = document.querySelector('.alert-btns');
     alertsBtn.style.display = "flex";
-    if (!showBtn){
+    if (!showBtn) {
         alertsBtn.style.display = "none";
     }
     let alertDiv = document.getElementsByClassName("alert-bar")[0];
@@ -26,11 +26,11 @@ function showAlert(textAlert, showBtn = false){
     text.innerText = textAlert;
     alertDiv.style.display = "flex";
 
-    if (!showBtn){
+    if (!showBtn) {
         setTimeout(() => {
             alertDiv.style.display = "none";
             text.innerText = "";
-        },5000);
+        }, 5000);
     }
 }
 
@@ -40,8 +40,8 @@ let userObject = null;
 let userToken = null;
 let translate = {};
 
-LIST_OF_VALID = ['person','bicycle','car','motorcycle','bus','truck','bird','cat','dog','horse','sheep',
-    'cow','elephant','bear','zebra']
+LIST_OF_VALID = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'bird', 'cat', 'dog', 'horse', 'sheep',
+    'cow', 'elephant', 'bear', 'zebra']
 
 //Video
 translate["person"] = "Persoană";
@@ -87,9 +87,9 @@ async function getUserData() {
                     reject(error);
                 }
             } else {
-                if (window.location.hostname == "127.0.0.1"){
+                if (window.location.hostname == "127.0.0.1") {
                     window.location.pathname = "/Frontend/pages/login.html"
-                }else{
+                } else {
                     window.location.pathname = "/pages/login.html"
                 }
                 console.log(window.location);
@@ -102,102 +102,102 @@ async function getUserData() {
 
 
 getUserData()
-.then((userObject) => {
-    console.log("User object final:", userObject);
-    document.querySelector('.plain-text-token').innerText = userToken;
-    alertsDB.where("token", "==", userToken).orderBy("detection_time", "desc")
-    .get()
-    .then((querySnapshot) => {
-        let alertsByDay = {};
+    .then((userObject) => {
+        console.log("User object final:", userObject);
+        document.querySelector('.plain-text-token').innerText = userToken;
+        alertsDB.where("token", "==", userToken).orderBy("detection_time", "desc")
+            .get()
+            .then((querySnapshot) => {
+                let alertsByDay = {};
 
-        let presentNow = new Date();
-        let past24h = new Date(presentNow);
-        past24h.setHours(presentNow.getHours() - 24);
+                let presentNow = new Date();
+                let past24h = new Date(presentNow);
+                past24h.setHours(presentNow.getHours() - 24);
 
-        let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
-        let hourLabels = [];
-        let tmp = new Date(presentNow);
-        for (let i = 0;i < 24;i++){
-            
-            hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
-            tmp.setHours(tmp.getHours() - 1);
-        }
-        hourLabels.reverse();
+                let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
+                let hourLabels = [];
+                let tmp = new Date(presentNow);
+                for (let i = 0; i < 24; i++) {
 
-        querySnapshot.forEach((doc) => {
-            let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
-            let color_class = "red-class";
-            let confidence = doc.data().confidence;
-            if (confidence >= 80){
-                color_class = "green-class";
-            } else if (confidence < 80 && confidence >= 60){
-                color_class = "yellow-class";
-            } else {
-                color_class = "red-class";
-            }
+                    hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
+                    tmp.setHours(tmp.getHours() - 1);
+                }
+                hourLabels.reverse();
 
-            let seconds_time = doc.data().detection_time;
-            let dateObject = new Date(seconds_time * 1000);
+                querySnapshot.forEach((doc) => {
+                    let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
+                    let color_class = "red-class";
+                    let confidence = doc.data().confidence;
+                    if (confidence >= 80) {
+                        color_class = "green-class";
+                    } else if (confidence < 80 && confidence >= 60) {
+                        color_class = "yellow-class";
+                    } else {
+                        color_class = "red-class";
+                    }
 
-            let year = dateObject.getFullYear();
-            let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
-            let day = dateObject.getDate().toString().padStart(2, '0');
-            let hours = dateObject.getHours().toString().padStart(2, '0');
-            let minutes = dateObject.getMinutes().toString().padStart(2, '0');
-            let seconds = dateObject.getSeconds().toString().padStart(2, '0');
+                    let seconds_time = doc.data().detection_time;
+                    let dateObject = new Date(seconds_time * 1000);
 
-            if (dateObject >= past24h && dateObject <= presentNow){
-                let index = hourLabels.indexOf(`${hours}:00`)
-                detectionsPerHour[index]++;
-            }
+                    let year = dateObject.getFullYear();
+                    let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+                    let day = dateObject.getDate().toString().padStart(2, '0');
+                    let hours = dateObject.getHours().toString().padStart(2, '0');
+                    let minutes = dateObject.getMinutes().toString().padStart(2, '0');
+                    let seconds = dateObject.getSeconds().toString().padStart(2, '0');
 
-            let dateKey = `${day}.${month}.${year}`;
+                    if (dateObject >= past24h && dateObject <= presentNow) {
+                        let index = hourLabels.indexOf(`${hours}:00`)
+                        detectionsPerHour[index]++;
+                    }
 
-            if (!alertsByDay[dateKey]) {
-                alertsByDay[dateKey] = [];
-            }
+                    let dateKey = `${day}.${month}.${year}`;
 
-            alertsByDay[dateKey].push({
-                detection_type: doc.data().detection_type,
-                classification: translate[doc.data().classification],
-                confidence: doc.data().confidence,
-                link: doc.data().link,
-                time: `${hours}:${minutes}:${seconds}`,
-                color_class: color_class,
-                doc_id: doc.id
-            });
-        });
+                    if (!alertsByDay[dateKey]) {
+                        alertsByDay[dateKey] = [];
+                    }
+
+                    alertsByDay[dateKey].push({
+                        detection_type: doc.data().detection_type,
+                        classification: translate[doc.data().classification],
+                        confidence: doc.data().confidence,
+                        link: doc.data().link,
+                        time: `${hours}:${minutes}:${seconds}`,
+                        color_class: color_class,
+                        doc_id: doc.id
+                    });
+                });
 
 
-        alertsChart1.data.labels = hourLabels;
-        alertsChart1.data.datasets[0].data = detectionsPerHour;
-        alertsChart1.update();
+                alertsChart1.data.labels = hourLabels;
+                alertsChart1.data.datasets[0].data = detectionsPerHour;
+                alertsChart1.update();
 
-        insertAlertsDiv.innerHTML = "";
-        alertsChart.data.labels = [];
-        alertsChart.data.datasets[0].data = []; 
+                insertAlertsDiv.innerHTML = "";
+                alertsChart.data.labels = [];
+                alertsChart.data.datasets[0].data = [];
 
-        alertData.datasets[0].backgroundColor = [];
-        alertData.datasets[0].borderColor = [];
-        alertData.labels = [];
-        alertData.datasets[0].data = [];
+                alertData.datasets[0].backgroundColor = [];
+                alertData.datasets[0].borderColor = [];
+                alertData.labels = [];
+                alertData.datasets[0].data = [];
 
-        let html = "";
-        const lastWeekDate = new Date();
-        const today = new Date();
-        lastWeekDate.setDate(today.getDate() - 7);
-        for (let dateKey in alertsByDay) {
-            html += `
+                let html = "";
+                const lastWeekDate = new Date();
+                const today = new Date();
+                lastWeekDate.setDate(today.getDate() - 7);
+                for (let dateKey in alertsByDay) {
+                    html += `
                 <div class="date-formated">
                     <div class="the-line"></div>
                     <div class="actual-date">${dateKey}</div>
                 </div>
             `;
-            let al = 0;
-            alertsByDay[dateKey].forEach(alert => {
-                incrementAlertCount(alert.classification);
-                al += 1;
-                html += `
+                    let al = 0;
+                    alertsByDay[dateKey].forEach(alert => {
+                        incrementAlertCount(alert.classification);
+                        al += 1;
+                        html += `
                     <div class="alert-div" data-id="${alert.doc_id}">
                         <div>${alert.detection_type}</div>
                         <div class="hour-of-alert">${alert.time}</div>
@@ -206,70 +206,59 @@ getUserData()
                         <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
                     </div>
                 `;
+                    });
+
+                    let newFormat = dateKey.split('.');
+                    const dft = new Date()
+                    dft.setFullYear(Number(newFormat[2]))
+                    dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1]) - 1 : Number(newFormat[1][1]) - 1)
+                    dft.setDate(Number(newFormat[0]))
+
+                    if (dft > lastWeekDate) {
+                        updateChartData(`${newFormat[0]}.${newFormat[1]}`, al);
+                    }
+                }
+                insertAlertsDiv.innerHTML = html;
+            })
+            .then(() => {
+                document.body.style.display = "block";
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
             });
 
-            let newFormat = dateKey.split('.');
-            const dft = new Date()
-            dft.setFullYear(Number(newFormat[2]))
-            dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1])-1 : Number(newFormat[1][1])-1)
-            dft.setDate(Number(newFormat[0]))
-
-            if (dft > lastWeekDate){
-                updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
-            }
-        }
-        insertAlertsDiv.innerHTML = html;
-        })
-        .then(() => {
-            document.body.style.display = "block";
-        })
-        .catch((error) => {
-            console.log("Error getting documents: ", error);
-        });
-
-})
-.catch((error) => {
-    console.error("Error:", error);
-});
+    })
+    .catch((error) => {
+        console.error("Error:", error);
+    });
 
 
 async function deleteAllFilesAndDocs() {
     try {
-      const snapshot = await alertsDB.get();
-  
-      const deletePromises = snapshot.docs.map(async (doc) => {
-        const linkValue = doc.data().link.split("/")[doc.data().link.split("/").length-1];
-        console.log(`Ștergem documentul cu link-ul: ${linkValue}`);
+        const snapshot = await alertsDB.get();
 
-        await doc.ref.delete();
-  
-        const filePath = `detections/${linkValue}`;
-        const fileRef = storage.ref(filePath);
-        await fileRef.delete();
-        console.log(`Fișierul ${filePath} a fost șters din storage.`);
-      });
-  
-      await Promise.all(deletePromises);
-      console.log('Toate documentele și fișierele au fost șterse.');
+        const deletePromises = snapshot.docs.map(async (doc) => {
+            const linkValue = doc.data().link.split("/")[doc.data().link.split("/").length - 1];
+
+            await doc.ref.delete();
+
+            const filePath = `detections/${linkValue}`;
+            const fileRef = storage.ref(filePath);
+            await fileRef.delete();
+        });
+
+        await Promise.all(deletePromises);
+        showAlert("Toate documentele și fișierele au fost șterse!");
     } catch (error) {
-      console.error('Eroare la ștergerea documentelor și fișierelor:', error);
+        showAlert("Eroare la ștergerea documentelor și fișierelor!");
     }
-  }
+}
 
-document.querySelector('.delete-all').onclick = () => {
-    let result = confirm("Ești sigur ca vrei sa stergi toate alertele?");
-    if (result == true){
-        deleteAllFilesAndDocs();
-    }
-};
 
-console.log(localStorage.getItem('userTokenShieldWave'));
-console.log(yesBtn);
-
-yesBtn.addEventListener("click",() => {
+yesBtn.addEventListener("click", () => {
     console.log(codeForBtnsAlert);
-    
-    if (codeForBtnsAlert == "micDeactivateAsk"){
+
+    if (codeForBtnsAlert == "micDeactivateAsk") {
         console.log("Enter");
         microphoneDeactivateDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
@@ -278,41 +267,59 @@ yesBtn.addEventListener("click",() => {
             showAlert("Microfonul se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
         });
-    }else if (codeForBtnsAlert == "cameraDeactivateAsk"){
+    } else if (codeForBtnsAlert == "cameraDeactivateAsk") {
         console.log("Enter2");
         cameraDeactivateDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
         }).then(() => {
-            showAlert("Camera se va dezactiva în 10 secunde!");
+            showAlert("Camera se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
         });
-    }else if (codeForBtnsAlert == "deactivateALL"){
+    } else if (codeForBtnsAlert == "deactivateALL") {
         console.log("Enter3");
         deactivationsDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
         }).then(() => {
-            showAlert("Sistemul se va dezactiva în 10 secunde!");
+            showAlert("Sistemul se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
         });
-    }else if (codeForBtnsAlert == "logoutUser"){
+    } else if (codeForBtnsAlert == "logoutUser") {
         console.log("Enter4");
 
         firebase.auth().signOut().then(() => {
             showAlert("Te-ai deconectat!");
             localStorage.removeItem("userTokenShieldWave");
             console.log("logged out");
-            
+
             codeForBtnsAlert = "none";
         }).catch((error) => {
             console.log(error);
         });
-    }
+    } else if (codeForBtnsAlert == "deleteAllLinks") {
 
+        async function deleteLinks() {
+
+            const querySnapshot = await linksDB
+                .where("token", "==", localStorage.getItem("userTokenShieldWave"))
+                .get();
+
+            querySnapshot.forEach((doc) => {
+                linksDB.doc(doc.id).delete();
+            });
+            codeForBtnsAlert = "none";
+            showAlert("Au fost șterse toate link-urile!");
+        }
+        deleteLinks();
+    } else if (codeForBtnsAlert == "deleteAllAlertsAI") {
+
+        deleteAllFilesAndDocs();
+        codeForBtnsAlert = "none";
+    }
 });
 
-noBtn.addEventListener("click",() => {
+noBtn.addEventListener("click", () => {
     let alertDiv = document.getElementsByClassName("alert-bar")[0];
     let text = alertDiv.getElementsByTagName("h3")[0];
     codeForBtnsAlert = "none";
@@ -321,192 +328,58 @@ noBtn.addEventListener("click",() => {
 })
 
 
+document.querySelector('.delete-all-alerts').addEventListener('click', () => {
+    console.log("Clickkkk");
+    codeForBtnsAlert = "deleteAllAlertsAI";
+    showAlert("Ești sigur că vrei să stergi toate alertele?", true);
+});
+
 document.querySelector('.deactivate').onclick = () => {
     deactivationsDB.where("user_token", "==", userToken).get()
-    .then((querySnapshot) => {
-        let doIt = true;
-        querySnapshot.forEach((doc) => {
-            doIt = false;
-        });
-        if (doIt){
-            codeForBtnsAlert = "deactivateALL";
-            showAlert("Ești sigur că vrei să dezactivezi sistemul?",true);
-        }
-    })
+        .then((querySnapshot) => {
+            let doIt = true;
+            querySnapshot.forEach((doc) => {
+                doIt = false;
+            });
+            if (doIt) {
+                codeForBtnsAlert = "deactivateALL";
+                showAlert("Ești sigur că vrei să dezactivezi sistemul?", true);
+            }
+        })
 }
 
 document.querySelector('.stop-cam').onclick = () => {
     cameraDeactivateDB.where("user_token", "==", userToken).get()
-    .then((querySnapshot) => {
-        let doIt = true;
-        querySnapshot.forEach((doc) => {
-            doIt = false;
-        });
-        if (doIt){
-            codeForBtnsAlert = "cameraDeactivateAsk";
-            showAlert("Ești sigur că vrei să dezactivezi camera?",true);
-        }
-    })
+        .then((querySnapshot) => {
+            let doIt = true;
+            querySnapshot.forEach((doc) => {
+                doIt = false;
+            });
+            if (doIt) {
+                codeForBtnsAlert = "cameraDeactivateAsk";
+                showAlert("Ești sigur că vrei să dezactivezi camera?", true);
+            }
+        })
 }
 
 document.querySelector('.stop-mic').onclick = () => {
     microphoneDeactivateDB.where("user_token", "==", userToken).get()
-    .then((querySnapshot) => {
-        let doIt = true;
-        querySnapshot.forEach((doc) => {
-            doIt = false;
-        });
-        if (doIt){
-            codeForBtnsAlert = "micDeactivateAsk";
-            showAlert("Ești sigur că vrei să dezactivezi microfonul?",true);
-        }
-    })
+        .then((querySnapshot) => {
+            let doIt = true;
+            querySnapshot.forEach((doc) => {
+                doIt = false;
+            });
+            if (doIt) {
+                codeForBtnsAlert = "micDeactivateAsk";
+                showAlert("Ești sigur că vrei să dezactivezi microfonul?", true);
+            }
+        })
 }
 
 document.querySelector(".logout").onclick = () => {
     codeForBtnsAlert = "logoutUser";
-    showAlert("Ești sigur că vrei să te deconectezi?",true);
+    showAlert("Ești sigur că vrei să te deconectezi?", true);
 }
-
-
-alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
-    let docs = snapshot.docs;
-    let alertsByDay = {};
-    let presentNow = new Date();
-    let past24h = new Date(presentNow);
-    past24h.setHours(presentNow.getHours() - 24);
-
-    let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
-    let hourLabels = [];
-    let tmp = new Date(presentNow);
-    for (let i = 0;i < 24;i++){
-        
-        hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
-        tmp.setHours(tmp.getHours() - 1);
-    }
-    hourLabels.reverse();
-    docs.forEach((doc) => {
-        let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
-        let color_class = "red-class";
-        let confidence = doc.data().confidence;
-        if (confidence >= 80){
-            color_class = "green-class";
-        } else if (confidence < 80 && confidence >= 60){
-            color_class = "yellow-class";
-        } else {
-            color_class = "red-class";
-        }
-
-        let seconds_time = doc.data().detection_time;
-        let dateObject = new Date(seconds_time * 1000);
-
-        let year = dateObject.getFullYear();
-        let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
-        let day = dateObject.getDate().toString().padStart(2, '0');
-        let hours = dateObject.getHours().toString().padStart(2, '0');
-        let minutes = dateObject.getMinutes().toString().padStart(2, '0');
-        let seconds = dateObject.getSeconds().toString().padStart(2, '0');
-
-        if (dateObject >= past24h && dateObject <= presentNow){
-            let index = hourLabels.indexOf(`${hours}:00`)
-            detectionsPerHour[index]++;
-        }
-
-        let dateKey = `${day}.${month}.${year}`;
-
-        if (!alertsByDay[dateKey]) {
-            alertsByDay[dateKey] = [];
-        }
-
-        alertsByDay[dateKey].push({
-            detection_type: doc.data().detection_type,
-            classification: translate[doc.data().classification],
-            confidence: doc.data().confidence,
-            link: doc.data().link,
-            time: `${hours}:${minutes}:${seconds}`,
-            color_class: color_class,
-            doc_id: doc.id
-        });
-    });
-    alertsChart1.data.labels = hourLabels;
-    alertsChart1.data.datasets[0].data = detectionsPerHour;
-    alertsChart1.update();
-    
-    insertAlertsDiv.innerHTML = "";
-    alertsChart.data.labels = [];
-    alertsChart.data.datasets[0].data = []; 
-
-    alertData.datasets[0].backgroundColor = [];
-    alertData.datasets[0].borderColor = [];
-    alertData.labels = [];
-    alertData.datasets[0].data = [];
-    let html = "";
-    const lastWeekDate = new Date();
-    const today = new Date();
-    lastWeekDate.setDate(today.getDate() - 7);
-    for (let dateKey in alertsByDay) {
-        html += `
-            <div class="date-formated">
-                <div class="the-line"></div>
-                <div class="actual-date">${dateKey}</div>
-            </div>
-        `;
-        let al = 0;
-        alertsByDay[dateKey].forEach(alert => {
-            incrementAlertCount(alert.classification);
-            al += 1;
-            if (alert.classification == "")
-            html += `
-                <div class="alert-div" data-id="${alert.doc_id}">
-                    <div>${alert.detection_type}</div>
-                    <div class="hour-of-alert">${alert.time}</div>
-                    <div>${alert.classification}</div>
-                    <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
-                    <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
-                </div>
-            `;
-        });
-        let newFormat = dateKey.split('.');
-        const dft = new Date()
-        dft.setFullYear(Number(newFormat[2]))
-        dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1])-1 : Number(newFormat[1][1])-1)
-        dft.setDate(Number(newFormat[0]))
-        
-        /*
-        console.log(dft);
-        console.log(lastWeekDate);*/
-        if (dft > lastWeekDate){
-            console.log(dft);
-            updateChartData(`${newFormat[0]}.${newFormat[1]}`,al);
-        }
-    }
-    insertAlertsDiv.innerHTML = html;
-
-}, (error) => {
-    console.error(error);
-});
-
-
-linksDB.where("token","==",localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
-    let docs = snapshot.docs;
-    let container = document.querySelector('.swiper-wrapper');
-    let notVideo = document.querySelector('.not-video');
-    notVideo.style.display = "block";
-    container.innerHTML = "";
-    for (let doc of docs){
-        for (let link of doc.data().links){
-            notVideo.style.display = "none";
-            container.innerHTML += `
-                <div class="swiper-slide">
-                    <iframe width="100%" height="100%"
-                        src="${link}"
-                        allowfullscreen>
-                    </iframe>
-                </div>
-            `;
-        }
-    }
-});
 
 document.querySelector('.delete-all-links').onclick = async () => {
 
@@ -517,11 +390,8 @@ document.querySelector('.delete-all-links').onclick = async () => {
     if (querySnapshot.empty) {
         showAlert("Nu s-a găsit nici un link!!!");
     } else {
-        querySnapshot.forEach((doc) => {
-            linksDB.doc(doc.id).delete().then(() => {
-                showAlert("Au fost șterse toate link-urile!!!");
-            });
-        });
+        codeForBtnsAlert = "deleteAllLinks";
+        showAlert("Ești sigur că vrei să ștergi toate link-urile?", true);
     }
 };
 
@@ -554,18 +424,152 @@ document.querySelector('.link-btn').onclick = async () => {
             });
         }
     } else {
-        alert("not good");
+        showAlert("Link-ul nu e valid!");
     }
 };
 
 
+alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
+    let docs = snapshot.docs;
+    let alertsByDay = {};
+    let presentNow = new Date();
+    let past24h = new Date(presentNow);
+    past24h.setHours(presentNow.getHours() - 24);
+
+    let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
+    let hourLabels = [];
+    let tmp = new Date(presentNow);
+    for (let i = 0; i < 24; i++) {
+
+        hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
+        tmp.setHours(tmp.getHours() - 1);
+    }
+    hourLabels.reverse();
+    docs.forEach((doc) => {
+        let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
+        let color_class = "red-class";
+        let confidence = doc.data().confidence;
+        if (confidence >= 80) {
+            color_class = "green-class";
+        } else if (confidence < 80 && confidence >= 60) {
+            color_class = "yellow-class";
+        } else {
+            color_class = "red-class";
+        }
+
+        let seconds_time = doc.data().detection_time;
+        let dateObject = new Date(seconds_time * 1000);
+
+        let year = dateObject.getFullYear();
+        let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+        let day = dateObject.getDate().toString().padStart(2, '0');
+        let hours = dateObject.getHours().toString().padStart(2, '0');
+        let minutes = dateObject.getMinutes().toString().padStart(2, '0');
+        let seconds = dateObject.getSeconds().toString().padStart(2, '0');
+
+        if (dateObject >= past24h && dateObject <= presentNow) {
+            let index = hourLabels.indexOf(`${hours}:00`)
+            detectionsPerHour[index]++;
+        }
+
+        let dateKey = `${day}.${month}.${year}`;
+
+        if (!alertsByDay[dateKey]) {
+            alertsByDay[dateKey] = [];
+        }
+
+        alertsByDay[dateKey].push({
+            detection_type: doc.data().detection_type,
+            classification: translate[doc.data().classification],
+            confidence: doc.data().confidence,
+            link: doc.data().link,
+            time: `${hours}:${minutes}:${seconds}`,
+            color_class: color_class,
+            doc_id: doc.id
+        });
+    });
+    alertsChart1.data.labels = hourLabels;
+    alertsChart1.data.datasets[0].data = detectionsPerHour;
+    alertsChart1.update();
+
+    insertAlertsDiv.innerHTML = "";
+    alertsChart.data.labels = [];
+    alertsChart.data.datasets[0].data = [];
+
+    alertData.datasets[0].backgroundColor = [];
+    alertData.datasets[0].borderColor = [];
+    alertData.labels = [];
+    alertData.datasets[0].data = [];
+    let html = "";
+    const lastWeekDate = new Date();
+    const today = new Date();
+    lastWeekDate.setDate(today.getDate() - 7);
+    for (let dateKey in alertsByDay) {
+        html += `
+            <div class="date-formated">
+                <div class="the-line"></div>
+                <div class="actual-date">${dateKey}</div>
+            </div>
+        `;
+        let al = 0;
+        alertsByDay[dateKey].forEach(alert => {
+            incrementAlertCount(alert.classification);
+            al += 1;
+            if (alert.classification == "")
+                html += `
+                <div class="alert-div" data-id="${alert.doc_id}">
+                    <div>${alert.detection_type}</div>
+                    <div class="hour-of-alert">${alert.time}</div>
+                    <div>${alert.classification}</div>
+                    <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
+                    <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                </div>
+            `;
+        });
+        let newFormat = dateKey.split('.');
+        const dft = new Date()
+        dft.setFullYear(Number(newFormat[2]))
+        dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1]) - 1 : Number(newFormat[1][1]) - 1)
+        dft.setDate(Number(newFormat[0]))
+
+        if (dft > lastWeekDate) {
+            console.log(dft);
+            updateChartData(`${newFormat[0]}.${newFormat[1]}`, al);
+        }
+    }
+    insertAlertsDiv.innerHTML = html;
+
+}, (error) => {
+    console.error(error);
+});
+
+
+linksDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
+    let docs = snapshot.docs;
+    let container = document.querySelector('.swiper-wrapper');
+    let notVideo = document.querySelector('.not-video');
+    notVideo.style.display = "block";
+    container.innerHTML = "";
+    for (let doc of docs) {
+        for (let link of doc.data().links) {
+            notVideo.style.display = "none";
+            container.innerHTML += `
+                <div class="swiper-slide">
+                    <iframe width="100%" height="100%"
+                        src="${link}"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            `;
+        }
+    }
+});
 
 function updateChartData(newLabels, newData) {
     alertsChart.data.labels.unshift(newLabels);
     alertsChart.data.datasets[0].data.unshift(newData)
     alertsChart.update();
 }
-
 
 const ctx = document.getElementById('alertsChart').getContext('2d');
 const alertsChart = new Chart(ctx, {
@@ -874,13 +878,12 @@ function addNewAlert(alertCategory, alertDataCount) {
 
 function incrementAlertCount(alertCategory) {
 
-
     const categoryIndex = alertData.labels.indexOf(alertCategory);
-    
+
     if (categoryIndex !== -1) {
         alertData.datasets[0].data[categoryIndex] += 1;
     } else {
-        addNewAlert(alertCategory,1);
+        addNewAlert(alertCategory, 1);
     }
 
     alertChart.update();
@@ -926,7 +929,7 @@ window.addEventListener('resize', () => {
         linkBtns[0].innerHTML = "<div><i class='fa-solid fa-plus'></i></div>";
         linkBtns[1].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
 
-    }else if (windowWidth > 380){
+    } else if (windowWidth > 380) {
         buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i> Șterge alertele</div>";
         buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i> Dezactivează</div>";
         buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i> Ieși</div>";
