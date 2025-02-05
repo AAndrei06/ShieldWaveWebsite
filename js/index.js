@@ -17,6 +17,7 @@ let noBtn = document.querySelector(".no-op");
 
 function showAlert(textAlert, showBtn = false){
     let alertsBtn = document.querySelector('.alert-btns');
+    alertsBtn.style.display = "flex";
     if (!showBtn){
         alertsBtn.style.display = "none";
     }
@@ -86,6 +87,12 @@ async function getUserData() {
                     reject(error);
                 }
             } else {
+                if (window.location.hostname == "127.0.0.1"){
+                    window.location.pathname = "/Frontend/pages/login.html"
+                }else{
+                    window.location.pathname = "/pages/login.html"
+                }
+                console.log(window.location);
                 console.log("No user logged in!");
                 resolve(null);
             }
@@ -250,7 +257,7 @@ async function deleteAllFilesAndDocs() {
   }
 
 document.querySelector('.delete-all').onclick = () => {
-    let result = confirm("Esti sigur ca vrei sa stergi toate alertele?");
+    let result = confirm("Ești sigur ca vrei sa stergi toate alertele?");
     if (result == true){
         deleteAllFilesAndDocs();
     }
@@ -268,15 +275,47 @@ yesBtn.addEventListener("click",() => {
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
         }).then(() => {
-            showAlert("Microfonul se va dezactiva în 7 secunde!!!");
+            showAlert("Microfonul se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
         });
+    }else if (codeForBtnsAlert == "cameraDeactivateAsk"){
+        console.log("Enter2");
+        cameraDeactivateDB.add({
+            user_token: localStorage.getItem("userTokenShieldWave"),
+            state: true
+        }).then(() => {
+            showAlert("Camera se va dezactiva în 10 secunde!");
+            codeForBtnsAlert = "none";
+        });
+    }else if (codeForBtnsAlert == "deactivateALL"){
+        console.log("Enter3");
+        deactivationsDB.add({
+            user_token: localStorage.getItem("userTokenShieldWave"),
+            state: true
+        }).then(() => {
+            showAlert("Sistemul se va dezactiva în 10 secunde!");
+            codeForBtnsAlert = "none";
+        });
+    }else if (codeForBtnsAlert == "logoutUser"){
+        console.log("Enter4");
+
+        firebase.auth().signOut().then(() => {
+            showAlert("Te-ai deconectat!");
+            localStorage.removeItem("userTokenShieldWave");
+            console.log("logged out");
+            
+            codeForBtnsAlert = "none";
+        }).catch((error) => {
+            console.log(error);
+        });
     }
+
 });
 
 noBtn.addEventListener("click",() => {
     let alertDiv = document.getElementsByClassName("alert-bar")[0];
     let text = alertDiv.getElementsByTagName("h3")[0];
+    codeForBtnsAlert = "none";
     alertDiv.style.display = "none";
     text.innerText = "";
 })
@@ -290,12 +329,8 @@ document.querySelector('.deactivate').onclick = () => {
             doIt = false;
         });
         if (doIt){
-            deactivationsDB.add({
-                user_token: localStorage.getItem("userTokenShieldWave"),
-                state: true
-            }).then(() => {
-                showAlert("Sistemul se va dezactiva în 10 secunde!!!");
-            });
+            codeForBtnsAlert = "deactivateALL";
+            showAlert("Ești sigur că vrei să dezactivezi sistemul?",true);
         }
     })
 }
@@ -308,12 +343,8 @@ document.querySelector('.stop-cam').onclick = () => {
             doIt = false;
         });
         if (doIt){
-            cameraDeactivateDB.add({
-                user_token: localStorage.getItem("userTokenShieldWave"),
-                state: true
-            }).then(() => {
-                showAlert("Camera se va dezactiva în 10 secunde!!!");
-            });
+            codeForBtnsAlert = "cameraDeactivateAsk";
+            showAlert("Ești sigur că vrei să dezactivezi camera?",true);
         }
     })
 }
@@ -333,12 +364,8 @@ document.querySelector('.stop-mic').onclick = () => {
 }
 
 document.querySelector(".logout").onclick = () => {
-    firebase.auth().signOut().then(() => {
-        localStorage.removeItem("userTokenShieldWave");
-        console.log("logged out");
-    }).catch((error) => {
-        console.log(error);
-    });
+    codeForBtnsAlert = "logoutUser";
+    showAlert("Ești sigur că vrei să te deconectezi?",true);
 }
 
 
@@ -884,6 +911,8 @@ copyBtn.addEventListener("copy", function (event) {
 let buttons = document.getElementsByClassName('option-btn');
 let tokenField = document.querySelector('.token-field');
 let pureField = document.querySelector('.pure-field');
+let stopBtns = document.getElementsByClassName('stop-btn');
+let linkBtns = document.getElementsByClassName("link-btn");
 
 window.addEventListener('resize', () => {
     const windowWidth = window.innerWidth;
@@ -892,6 +921,19 @@ window.addEventListener('resize', () => {
         buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
         buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
         buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i></div>";
+        stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i></div>";
+        stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i></div>";
+        linkBtns[0].innerHTML = "<div><i class='fa-solid fa-plus'></i></div>";
+        linkBtns[1].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
+
+    }else if (windowWidth > 380){
+        buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i> Șterge alertele</div>";
+        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i> Dezactivează</div>";
+        buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i> Ieși</div>";
+        stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i> Oprește camera</div>";
+        stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i> Oprește microfonul</div>";
+        linkBtns[0].innerHTML = "<div><i class='fa-solid fa-plus'></i> Adaugă un link live</div>";
+        linkBtns[1].innerHTML = "<div><i class='fa-solid fa-trash-can'></i> Șterge toate link-urile</div>";
     }
 });
 
@@ -901,4 +943,8 @@ if (windowWidth < 380) {
     buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
     buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
     buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i></div>";
+    stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i></div>";
+    stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i></div>";
+    linkBtns[0].innerHTML = "<div><i class='fa-solid fa-plus'></i></div>";
+    linkBtns[1].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
 }

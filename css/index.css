@@ -560,6 +560,16 @@ main{
         font-weight: 500;
         font-size: 15px;
     }
+
+    .stop-btn > div{
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .link-btn > div{
+        font-weight: 500;
+        font-size: 15px;
+    }
 }
 
 @media all and (max-width: 1250px){
