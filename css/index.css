@@ -36,7 +36,6 @@ main{
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background-color: blue;
 }
 
 .video-section{
