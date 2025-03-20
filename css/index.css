@@ -36,12 +36,13 @@ main{
     display: flex;
     flex-direction: column;
     gap: 10px;
+    background-color: blue;
 }
 
 .video-section{
     width: calc(100%);
     background-color: var(--back-white);
-    height: 570px;
+    height: 70%;
     border-radius: 10px;
 }
 
@@ -258,10 +259,10 @@ main{
 
 .graphs-section{
     width:calc(100% - 10px);
-    height: 330px;
+    height: calc(30%-40px);
     display: flex;
     flex-direction: row;
-    gap: 10px
+    gap: 10px;
 }
 
 .day-graph {
