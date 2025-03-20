@@ -514,8 +514,9 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         let al = 0;
         alertsByDay[dateKey].forEach(alert => {
             incrementAlertCount(alert.classification);
+            console.log(alert);
             al += 1;
-            if (alert.classification == "")
+            if (alert.classification != "")
                 html += `
                 <div class="alert-div" data-id="${alert.doc_id}">
                     <div>${alert.detection_type}</div>
