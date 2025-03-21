@@ -61,10 +61,11 @@ translate["zebra"] = "Animal";
 translate["Necunoscut"] = "Mișcare";
 
 // Audio
-translate["footsteps"] = "Pași";
+translate["footsteps"] = "Pași/Bătăi";
 translate["voice"] = "Voce";
-translate["door"] = "Ușă deschisă";
+translate["door"] = "Ușă/Zgomot";
 translate["glass"] = "Sticlă spartă";
+translate["dog_audio"] = "Voce/Câine";
 
 let insertAlertsDiv = document.getElementsByClassName("inserted-alerts")[0];
 
@@ -197,15 +198,16 @@ getUserData()
                     alertsByDay[dateKey].forEach(alert => {
                         incrementAlertCount(alert.classification);
                         al += 1;
+
                         html += `
-                    <div class="alert-div" data-id="${alert.doc_id}">
-                        <div>${alert.detection_type}</div>
-                        <div class="hour-of-alert">${alert.time}</div>
-                        <div>${alert.classification}</div>
-                        <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
-                        <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
-                    </div>
-                `;
+                            <div class="alert-div" data-id="${alert.doc_id}">
+                                <div>${alert.detection_type}</div>
+                                <div class="hour-of-alert">${alert.time}</div>
+                                <div>${alert.classification}</div>
+                                <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
+                                <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                            </div>
+                        `;
                     });
 
                     let newFormat = dateKey.split('.');
@@ -514,6 +516,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         let al = 0;
         alertsByDay[dateKey].forEach(alert => {
             incrementAlertCount(alert.classification);
+
             console.log(alert);
             al += 1;
             if (alert.classification != "")
@@ -939,6 +942,11 @@ window.addEventListener('resize', () => {
         linkBtns[0].innerHTML = "<div><i class='fa-solid fa-plus'></i> Adaugă un link live</div>";
         linkBtns[1].innerHTML = "<div><i class='fa-solid fa-trash-can'></i> Șterge toate link-urile</div>";
     }
+
+    if (windowWidth < 497 && windowWidth >= 380) {
+        stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i> Stop cam</div>";
+        stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i> Stop mic</div>";
+    }
 });
 
 const windowWidth = window.innerWidth;
@@ -952,3 +960,9 @@ if (windowWidth < 380) {
     linkBtns[0].innerHTML = "<div><i class='fa-solid fa-plus'></i></div>";
     linkBtns[1].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
 }
+
+if (windowWidth < 497 && windowWidth >= 380) {
+    stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i> Stop cam</div>";
+    stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i> Stop mic</div>";
+}
+

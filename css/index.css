@@ -43,6 +43,7 @@ main{
     background-color: var(--back-white);
     height: 70%;
     border-radius: 10px;
+    min-height: 520px;
 }
 
 .link-input-box{
@@ -491,6 +492,7 @@ main{
     justify-content: space-around;
     gap: 10px;
     padding: 3px;
+    z-index: 99;
     cursor: pointer;
 }
 
@@ -663,7 +665,8 @@ main{
     .video-section{
         width: calc(100%);
         background-color: var(--back-white);
-        height: 430px;
+        /*height: 430px;*/
+        min-height: 400px;
     }
     
     .video-section > img{
@@ -679,7 +682,8 @@ main{
     .video-section{
         width: calc(100%);
         background-color: var(--back-white);
-        height: 380px;
+        /*height: 380px;*/
+        min-height: 350px;
     }
     
     .video-section > img{
@@ -695,7 +699,8 @@ main{
     .video-section{
         width: calc(100%);
         background-color: var(--back-white);
-        height: 330px;
+        /*height: 330px;*/
+        min-height: 310px;
     }
     
     .video-section > img{
@@ -711,7 +716,8 @@ main{
     .video-section{
         width: calc(100%);
         background-color: var(--back-white);
-        height: 270px;
+        /*height: 270px;*/
+        min-height: 270px;
     }
     
     .video-section > img{
@@ -727,7 +733,8 @@ main{
     .video-section{
         width: calc(100%);
         background-color: var(--back-white);
-        height: 230px;
+        /*height: 230px;*/
+        min-height: 200px;
     }
     
     .video-section > img{
@@ -752,5 +759,17 @@ main{
     .pure-field > div:nth-child(2){
         font-size: 12px;
     }
+
+}
+
+
+@media all and (max-width: 330px){
+    .video-section{
+        width: calc(100%);
+        background-color: var(--back-white);
+        /*height: 230px;*/
+        min-height: 180px;
+    }
+
 
 }
