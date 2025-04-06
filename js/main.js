@@ -17,6 +17,7 @@ const deactivationsDB = firebase.firestore().collection("deactivations");
 const cameraDeactivateDB = firebase.firestore().collection("deactivateCameras");
 const microphoneDeactivateDB = firebase.firestore().collection("deactivateMicrophones");
 const linksDB = firebase.firestore().collection("links");
+const activationsDB = firebase.firestore().collection("activations");
 
 function validateEmail(email){
 
