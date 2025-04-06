@@ -26,6 +26,8 @@ submit.onclick = () => {
                 email: email.value,
                 token: generateToken(32),
                 created: date.getTime(),
+                state: 'inactive',
+                last_active:Number(Math.round(date.getTime()/1000)),
                 ID: user.uid
             }).then((doc) => {
                 let btn = document.getElementsByName('submit_btn')[0];

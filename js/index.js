@@ -39,6 +39,9 @@ function showAlert(textAlert, showBtn = false) {
 let userObject = null;
 let userToken = null;
 let translate = {};
+let activate_btn = true;
+let activate_deactivate = document.querySelector('.deactivate');
+
 
 LIST_OF_VALID = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'bird', 'cat', 'dog', 'horse', 'sheep',
     'cow', 'elephant', 'bear', 'zebra']
@@ -65,7 +68,7 @@ translate["footsteps"] = "Pași/Bătăi";
 translate["voice"] = "Voce";
 translate["door"] = "Ușă/Zgomot";
 translate["glass"] = "Sticlă spartă";
-translate["dog_audio"] = "Voce/Câine";
+translate["dog_audio"] = "Voce";
 
 let insertAlertsDiv = document.getElementsByClassName("inserted-alerts")[0];
 
@@ -93,8 +96,6 @@ async function getUserData() {
                 } else {
                     window.location.pathname = "/pages/login.html"
                 }
-                console.log(window.location);
-                console.log("No user logged in!");
                 resolve(null);
             }
         });
@@ -104,8 +105,18 @@ async function getUserData() {
 
 getUserData()
     .then((userObject) => {
-        console.log("User object final:", userObject);
         document.querySelector('.plain-text-token').innerText = userToken;
+        /*
+        activationsDB.where("user_token","==",userToken).get().then((querySnapshot) => {
+            querySnapshot.forEach(doc => {
+                if (doc.exists){
+                    activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+                    console.log(doc.data());
+                }else{
+                }
+            });
+        });
+        */
         alertsDB.where("token", "==", userToken).orderBy("detection_time", "desc")
             .get()
             .then((querySnapshot) => {
@@ -258,10 +269,8 @@ async function deleteAllFilesAndDocs() {
 
 
 yesBtn.addEventListener("click", () => {
-    console.log(codeForBtnsAlert);
 
     if (codeForBtnsAlert == "micDeactivateAsk") {
-        console.log("Enter");
         microphoneDeactivateDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
@@ -270,7 +279,6 @@ yesBtn.addEventListener("click", () => {
             codeForBtnsAlert = "none";
         });
     } else if (codeForBtnsAlert == "cameraDeactivateAsk") {
-        console.log("Enter2");
         cameraDeactivateDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
@@ -278,17 +286,26 @@ yesBtn.addEventListener("click", () => {
             showAlert("Camera se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
         });
-    } else if (codeForBtnsAlert == "deactivateALL") {
-        console.log("Enter3");
+    } else if (codeForBtnsAlert == "deactivateALL" && activate_btn == false) {
         deactivationsDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
         }).then(() => {
             showAlert("Sistemul se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
+            activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+            activate_btn = true;
+        });
+    }else if (codeForBtnsAlert == "activateALL" && activate_btn == true){
+        activationsDB.add({
+            user_token: localStorage.getItem("userTokenShieldWave")
+        }).then(() => {
+            showAlert("Sistemul se va activa în 7 secunde!");
+            codeForBtnsAlert = "none";
+            activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Deactivează</div>';
+            activate_btn = false;
         });
     } else if (codeForBtnsAlert == "logoutUser") {
-        console.log("Enter4");
 
         firebase.auth().signOut().then(() => {
             showAlert("Te-ai deconectat!");
@@ -331,23 +348,70 @@ noBtn.addEventListener("click", () => {
 
 
 document.querySelector('.delete-all-alerts').addEventListener('click', () => {
-    console.log("Clickkkk");
     codeForBtnsAlert = "deleteAllAlertsAI";
     showAlert("Ești sigur că vrei să stergi toate alertele?", true);
 });
 
+usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
+    console.log("Do it");
+    let docs = snapshot.docs;
+    let doc = docs[0];
+    let new_date = new Date();
+    let epoch_seconds = Math.round(new_date.getTime()/1000);
+
+    const windowWidth = window.innerWidth;
+    if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active"){
+
+        activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Dezactivează</div>';
+        activate_btn = false;
+    }else{
+        activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+        activate_btn = true;
+    }
+    
+    if (windowWidth < 380) {
+        if (activate_btn == false){
+            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
+        }else{
+            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
+        }
+    }
+});
+
 document.querySelector('.deactivate').onclick = () => {
-    deactivationsDB.where("user_token", "==", userToken).get()
-        .then((querySnapshot) => {
-            let doIt = true;
-            querySnapshot.forEach((doc) => {
-                doIt = false;
-            });
-            if (doIt) {
-                codeForBtnsAlert = "deactivateALL";
-                showAlert("Ești sigur că vrei să dezactivezi sistemul?", true);
+    usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get().then((querySnapshot) => {
+        querySnapshot.forEach(doc => {
+            let new_date = new Date();
+            let epoch_seconds = Math.round(new_date.getTime()/1000);
+            if (epoch_seconds - doc.data().last_active > 10){
+                showAlert("Atenție, sistemul nu este conectat sau e defect!!!");
+            }else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active")
+                deactivationsDB.where("user_token", "==", userToken).get()
+                .then((querySnapshot) => {
+                    let doIt = true;
+                    querySnapshot.forEach((doc) => {
+                        doIt = false;
+                    });
+                    if (doIt) {
+                        codeForBtnsAlert = "deactivateALL";
+                        showAlert("Ești sigur că vrei să dezactivezi sistemul?", true);
+                    }
+                })
+            else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "inactive"){
+                activationsDB.where("user_token", "==", userToken).get()
+                .then((querySnapshot) => {
+                    let doIt = true;
+                    querySnapshot.forEach((doc) => {
+                        doIt = false;
+                    });
+                    if (doIt) {
+                        codeForBtnsAlert = "activateALL";
+                        showAlert("Ești sigur că vrei să activezi sistemul?", true);
+                    }
+                })
             }
-        })
+        });
+    });
 }
 
 document.querySelector('.stop-cam').onclick = () => {
@@ -517,7 +581,6 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         alertsByDay[dateKey].forEach(alert => {
             incrementAlertCount(alert.classification);
 
-            console.log(alert);
             al += 1;
             if (alert.classification != "")
                 html += `
@@ -537,7 +600,6 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         dft.setDate(Number(newFormat[0]))
 
         if (dft > lastWeekDate) {
-            console.log(dft);
             updateChartData(`${newFormat[0]}.${newFormat[1]}`, al);
         }
     }
@@ -911,7 +973,7 @@ copyBtn.addEventListener("copy", function (event) {
     if (event.clipboardData) {
         event.clipboardData.setData("text/plain", document.getElementsByClassName('plain-text-token')[0].innerText);
         console.log(event.clipboardData.getData("text"))
-        alert('Token Copiat');
+        showAlert('Token Copiat!');
     }
 });
 
@@ -926,7 +988,11 @@ window.addEventListener('resize', () => {
 
     if (windowWidth < 380) {
         buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
-        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
+        if (activate_btn == false){
+            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
+        }else{
+            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
+        }
         buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i></div>";
         stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i></div>";
         stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i></div>";
@@ -935,7 +1001,11 @@ window.addEventListener('resize', () => {
 
     } else if (windowWidth > 380) {
         buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i> Șterge alertele</div>";
-        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i> Dezactivează</div>";
+        if (activate_btn == false){
+            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i> Dezactivează</div>";
+        }else{
+            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i> Activează</div>";
+        }
         buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i> Ieși</div>";
         stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i> Oprește camera</div>";
         stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i> Oprește microfonul</div>";
@@ -953,7 +1023,11 @@ const windowWidth = window.innerWidth;
 
 if (windowWidth < 380) {
     buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
-    buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
+    if (activate_btn == false){
+        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
+    }else{
+        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
+    }
     buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i></div>";
     stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i></div>";
     stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i></div>";
@@ -965,4 +1039,3 @@ if (windowWidth < 497 && windowWidth >= 380) {
     stopBtns[0].innerHTML = "<div><i class='fa-solid fa-video'></i> Stop cam</div>";
     stopBtns[1].innerHTML = "<div><i class='fa-solid fa-microphone'></i> Stop mic</div>";
 }
-
