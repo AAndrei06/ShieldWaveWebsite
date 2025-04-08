@@ -31,7 +31,6 @@ submit.onclick = () => {
                 ID: user.uid
             }).then((doc) => {
                 let btn = document.getElementsByName('submit_btn')[0];
-                console.log(doc.data());
                 btn.style.backgroundColor = '#4BB543';
                 btn.innerHTML = 'Succes!!!';
                 setTimeout(() => {
