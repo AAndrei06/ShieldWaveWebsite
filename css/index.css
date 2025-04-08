@@ -186,7 +186,11 @@ main{
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-    background-color: green;
+    background-color: #1e7022;
+}
+
+.link-btn:hover{
+    background-color: #1b5f1e;
 }
 
 .link-btn > div{
@@ -542,11 +546,11 @@ main{
 }
 
 .delete-all{
-    background-color: #f22222;
+    background-color: #db0b0b;
 }
 
 .delete-all:hover{
-    background-color: #db0b0b;
+    background-color: #cc0000;
 }
 
 .logout{
