@@ -43,6 +43,7 @@ let activate_btn = true;
 let activate_deactivate = document.querySelector('.deactivate');
 
 
+
 LIST_OF_VALID = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'bird', 'cat', 'dog', 'horse', 'sheep',
     'cow', 'elephant', 'bear', 'zebra']
 
@@ -347,6 +348,7 @@ noBtn.addEventListener("click", () => {
 })
 
 
+
 document.querySelector('.delete-all-alerts').addEventListener('click', () => {
     codeForBtnsAlert = "deleteAllAlertsAI";
     showAlert("Ești sigur că vrei să stergi toate alertele?", true);
@@ -496,6 +498,11 @@ document.querySelector('.link-btn').onclick = async () => {
 
 
 alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
+    const notification = new Notification("Alertă detectată",{
+        body: "Accesează site-ul pentru a vedea alerta!!!",
+        icon: "../images/logo.png"
+    });
+
     let docs = snapshot.docs;
     let alertsByDay = {};
     let presentNow = new Date();
