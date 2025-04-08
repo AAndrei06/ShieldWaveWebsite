@@ -498,10 +498,15 @@ document.querySelector('.link-btn').onclick = async () => {
 
 
 alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
-    const notification = new Notification("Alertă detectată",{
-        body: "Accesează site-ul pentru a vedea alerta!!!",
-        icon: "../images/logo.png"
-    });
+    Notification.requestPermission().then(perm => {
+        if (perm == "granted"){
+            const notification = new Notification("Alertă detectată",{
+                body: "Accesează site-ul pentru a vedea alerta!!!",
+                icon: "../images/logo.png"
+            });
+        }
+    })
+    
 
     let docs = snapshot.docs;
     let alertsByDay = {};
