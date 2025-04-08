@@ -14,6 +14,25 @@
 	<link rel="stylesheet" type="text/css" href="./css/general.css">
 	<link rel="stylesheet" type="text/css" href="./css/index.css">
 	<title>ShieldWaveAI | Home</title>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+		  if ("Notification" in window) {
+			Notification.requestPermission().then(function (permission) {
+			  if (permission === "granted") {
+				new Notification("Salut!", {
+				  body: "Bine ai venit!",
+				  icon: "./images/logo.png"
+				});
+			  } else {
+				alert("Permisiune refuzată:", permission);
+			  }
+			});
+		  } else {
+			alert("Notificările nu sunt suportate.");
+		  }
+		});
+	</script>
+	  
 </head>
 <body>
 	<div class="alert-bar">
