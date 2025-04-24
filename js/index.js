@@ -105,42 +105,42 @@ async function getUserData() {
 
 
 getUserData()
-    .then((userObject) => {
-        document.querySelector('.plain-text-token').innerText = userToken;
-        /*
-        activationsDB.where("user_token","==",userToken).get().then((querySnapshot) => {
-            querySnapshot.forEach(doc => {
-                if (doc.exists){
-                    activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
-                    console.log(doc.data());
-                }else{
-                }
-            });
+.then((userObject) => {
+    document.querySelector('.plain-text-token').innerText = userToken;
+    
+    activationsDB.where("user_token","==",userToken).get().then((querySnapshot) => {
+        querySnapshot.forEach(doc => {
+            if (doc.exists){
+                activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+            }
         });
-        */
-        alertsDB.where("token", "==", userToken).orderBy("detection_time", "desc")
-            .get()
-            .then((querySnapshot) => {
-                let alertsByDay = {};
+    });
+    
+    
+    alertsDB.where("user_token", "==", userToken)
+        .get()
+        .then((querySnapshot) => {
+            let alertsByDay = {};
+            let presentNow = new Date();
+            let past24h = new Date(presentNow);
+            past24h.setHours(presentNow.getHours() - 24);
 
-                let presentNow = new Date();
-                let past24h = new Date(presentNow);
-                past24h.setHours(presentNow.getHours() - 24);
+            let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
+            let hourLabels = [];
+            let tmp = new Date(presentNow);
+            for (let i = 0; i < 24; i++) {
 
-                let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
-                let hourLabels = [];
-                let tmp = new Date(presentNow);
-                for (let i = 0; i < 24; i++) {
+                hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
+                tmp.setHours(tmp.getHours() - 1);
+            }
+            hourLabels.reverse();
 
-                    hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
-                    tmp.setHours(tmp.getHours() - 1);
-                }
-                hourLabels.reverse();
-
-                querySnapshot.forEach((doc) => {
-                    let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
+            querySnapshot.forEach((element) => {
+                elements = element.data().alert_list.sort((a, b) => b.detection_time - a.detection_time);
+                for (let doc of elements){
+                    let link = doc.detection_type == "Video" ? "Link la video" : "Link la audio";
                     let color_class = "red-class";
-                    let confidence = doc.data().confidence;
+                    let confidence = doc.confidence;
                     if (confidence >= 80) {
                         color_class = "green-class";
                     } else if (confidence < 80 && confidence >= 60) {
@@ -149,7 +149,7 @@ getUserData()
                         color_class = "red-class";
                     }
 
-                    let seconds_time = doc.data().detection_time;
+                    let seconds_time = doc.detection_time;
                     let dateObject = new Date(seconds_time * 1000);
 
                     let year = dateObject.getFullYear();
@@ -171,102 +171,122 @@ getUserData()
                     }
 
                     alertsByDay[dateKey].push({
-                        detection_type: doc.data().detection_type,
-                        classification: translate[doc.data().classification],
-                        confidence: doc.data().confidence,
-                        link: doc.data().link,
+                        detection_type: doc.detection_type,
+                        classification: translate[doc.classification],
+                        confidence: doc.confidence,
+                        link: doc.link,
                         time: `${hours}:${minutes}:${seconds}`,
                         color_class: color_class,
                         doc_id: doc.id
                     });
-                });
-
-
-                alertsChart1.data.labels = hourLabels;
-                alertsChart1.data.datasets[0].data = detectionsPerHour;
-                alertsChart1.update();
-
-                insertAlertsDiv.innerHTML = "";
-                alertsChart.data.labels = [];
-                alertsChart.data.datasets[0].data = [];
-
-                alertData.datasets[0].backgroundColor = [];
-                alertData.datasets[0].borderColor = [];
-                alertData.labels = [];
-                alertData.datasets[0].data = [];
-
-                let html = "";
-                const lastWeekDate = new Date();
-                const today = new Date();
-                lastWeekDate.setDate(today.getDate() - 7);
-                for (let dateKey in alertsByDay) {
-                    html += `
-                <div class="date-formated">
-                    <div class="the-line"></div>
-                    <div class="actual-date">${dateKey}</div>
-                </div>
-            `;
-                    let al = 0;
-                    alertsByDay[dateKey].forEach(alert => {
-                        incrementAlertCount(alert.classification);
-                        al += 1;
-
-                        html += `
-                            <div class="alert-div" data-id="${alert.doc_id}">
-                                <div>${alert.detection_type}</div>
-                                <div class="hour-of-alert">${alert.time}</div>
-                                <div>${alert.classification}</div>
-                                <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
-                                <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
-                            </div>
-                        `;
-                    });
-
-                    let newFormat = dateKey.split('.');
-                    const dft = new Date()
-                    dft.setFullYear(Number(newFormat[2]))
-                    dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1]) - 1 : Number(newFormat[1][1]) - 1)
-                    dft.setDate(Number(newFormat[0]))
-
-                    if (dft > lastWeekDate) {
-                        updateChartData(`${newFormat[0]}.${newFormat[1]}`, al);
-                    }
                 }
-                insertAlertsDiv.innerHTML = html;
-            })
-            .then(() => {
-                document.body.style.display = "block";
-            })
-            .catch((error) => {
-                console.log("Error getting documents: ", error);
             });
 
-    })
-    .catch((error) => {
-        console.error("Error:", error);
-    });
 
+            alertsChart1.data.labels = hourLabels;
+            alertsChart1.data.datasets[0].data = detectionsPerHour;
+            alertsChart1.update();
 
-async function deleteAllFilesAndDocs() {
+            insertAlertsDiv.innerHTML = "";
+            alertsChart.data.labels = [];
+            alertsChart.data.datasets[0].data = [];
+
+            alertData.datasets[0].backgroundColor = [];
+            alertData.datasets[0].borderColor = [];
+            alertData.labels = [];
+            alertData.datasets[0].data = [];
+
+            let html = "";
+            const lastWeekDate = new Date();
+            const today = new Date();
+            lastWeekDate.setDate(today.getDate() - 7);
+            for (let dateKey in alertsByDay) {
+                html += `
+            <div class="date-formated">
+                <div class="the-line"></div>
+                <div class="actual-date">${dateKey}</div>
+            </div>
+        `;
+                let al = 0;
+                alertsByDay[dateKey].forEach(alert => {
+                    incrementAlertCount(alert.classification);
+                    al += 1;
+
+                    html += `
+                        <div class="alert-div" data-id="${alert.doc_id}">
+                            <div>${alert.detection_type}</div>
+                            <div class="hour-of-alert">${alert.time}</div>
+                            <div>${alert.classification}</div>
+                            <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
+                            <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                        </div>
+                    `;
+                });
+
+                let newFormat = dateKey.split('.');
+                const dft = new Date()
+                dft.setFullYear(Number(newFormat[2]))
+                dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1]) - 1 : Number(newFormat[1][1]) - 1)
+                dft.setDate(Number(newFormat[0]))
+
+                if (dft > lastWeekDate) {
+                    updateChartData(`${newFormat[0]}.${newFormat[1]}`, al);
+                }
+            }
+            insertAlertsDiv.innerHTML = html;
+        })
+        .then(() => {
+            document.body.style.display = "block";
+        })
+        .catch((error) => {
+            console.log("Error getting documents: ", error);
+        });
+        
+
+})
+.catch((error) => {
+    console.error("Error:", error);
+});
+
+async function deleteAllFilesAndDocs(authToken) {
     try {
-        const snapshot = await alertsDB.get();
+        const snapshot = await alertsDB.where("user_token", "==", authToken).get();
 
-        const deletePromises = snapshot.docs.map(async (doc) => {
-            const linkValue = doc.data().link.split("/")[doc.data().link.split("/").length - 1];
+        if (snapshot.empty) {
+            showAlert("Nu s-au găsit alerte pentru acest utilizator.");
+            return;
+        }
 
-            await doc.ref.delete();
+        const deletePromises = [];
 
-            const filePath = `detections/${linkValue}`;
-            const fileRef = storage.ref(filePath);
-            await fileRef.delete();
+        snapshot.forEach((doc) => {
+            const alertList = doc.data().alert_list || [];
+
+            alertList.forEach((alert) => {
+                const link = alert.link;
+                if (link) {
+                    // Extragem path-ul Firebase Storage (începând cu "detections/")
+                    const urlParts = link.split("detections/");
+                    if (urlParts.length > 1) {
+                        const filePath = `detections/${urlParts[1]}`;
+                        const fileRef = storage.ref(filePath);
+                        deletePromises.push(fileRef.delete());
+                    }
+                }
+            });
+
+            // Ștergem documentul Firestore
+            deletePromises.push(doc.ref.delete());
         });
 
         await Promise.all(deletePromises);
-        showAlert("Toate documentele și fișierele au fost șterse!");
+        showAlert("Toate alertele și fișierele au fost șterse cu succes!");
     } catch (error) {
-        showAlert("Eroare la ștergerea documentelor și fișierelor!");
+        console.error("Eroare la ștergere:", error);
+        showAlert("A apărut o eroare la ștergerea fișierelor sau alertelor.");
     }
 }
+
 
 
 yesBtn.addEventListener("click", () => {
@@ -334,7 +354,7 @@ yesBtn.addEventListener("click", () => {
         deleteLinks();
     } else if (codeForBtnsAlert == "deleteAllAlertsAI") {
 
-        deleteAllFilesAndDocs();
+        deleteAllFilesAndDocs(localStorage.getItem("userTokenShieldWave"));
         codeForBtnsAlert = "none";
     }
 });
@@ -355,7 +375,6 @@ document.querySelector('.delete-all-alerts').addEventListener('click', () => {
 });
 
 usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
-    console.log("Do it");
     let docs = snapshot.docs;
     let doc = docs[0];
     let new_date = new Date();
@@ -497,7 +516,8 @@ document.querySelector('.link-btn').onclick = async () => {
 };
 
 
-alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
+alertsDB.where("user_token", "==", localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
+    /*
     Notification.requestPermission().then(perm => {
         if (perm == "granted"){
             const notification = new Notification("Alertă detectată",{
@@ -506,8 +526,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
             });
         }
     })
-    
-
+    */
     let docs = snapshot.docs;
     let alertsByDay = {};
     let presentNow = new Date();
@@ -523,48 +542,52 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         tmp.setHours(tmp.getHours() - 1);
     }
     hourLabels.reverse();
-    docs.forEach((doc) => {
-        let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
-        let color_class = "red-class";
-        let confidence = doc.data().confidence;
-        if (confidence >= 80) {
-            color_class = "green-class";
-        } else if (confidence < 80 && confidence >= 60) {
-            color_class = "yellow-class";
-        } else {
-            color_class = "red-class";
+    docs.forEach((element) => {
+        elements = element.data().alert_list.sort((a, b) => b.detection_time - a.detection_time);
+        
+        for (let doc of elements){
+            let link = doc.detection_type == "Video" ? "Link la video" : "Link la audio";
+            let color_class = "red-class";
+            let confidence = doc.confidence;
+            if (confidence >= 80) {
+                color_class = "green-class";
+            } else if (confidence < 80 && confidence >= 60) {
+                color_class = "yellow-class";
+            } else {
+                color_class = "red-class";
+            }
+
+            let seconds_time = doc.detection_time;
+            let dateObject = new Date(seconds_time * 1000);
+
+            let year = dateObject.getFullYear();
+            let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+            let day = dateObject.getDate().toString().padStart(2, '0');
+            let hours = dateObject.getHours().toString().padStart(2, '0');
+            let minutes = dateObject.getMinutes().toString().padStart(2, '0');
+            let seconds = dateObject.getSeconds().toString().padStart(2, '0');
+
+            if (dateObject >= past24h && dateObject <= presentNow) {
+                let index = hourLabels.indexOf(`${hours}:00`)
+                detectionsPerHour[index]++;
+            }
+
+            let dateKey = `${day}.${month}.${year}`;
+
+            if (!alertsByDay[dateKey]) {
+                alertsByDay[dateKey] = [];
+            }
+
+            alertsByDay[dateKey].push({
+                detection_type: doc.detection_type,
+                classification: translate[doc.classification],
+                confidence: doc.confidence,
+                link: doc.link,
+                time: `${hours}:${minutes}:${seconds}`,
+                color_class: color_class,
+                doc_id: doc.id
+            });
         }
-
-        let seconds_time = doc.data().detection_time;
-        let dateObject = new Date(seconds_time * 1000);
-
-        let year = dateObject.getFullYear();
-        let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
-        let day = dateObject.getDate().toString().padStart(2, '0');
-        let hours = dateObject.getHours().toString().padStart(2, '0');
-        let minutes = dateObject.getMinutes().toString().padStart(2, '0');
-        let seconds = dateObject.getSeconds().toString().padStart(2, '0');
-
-        if (dateObject >= past24h && dateObject <= presentNow) {
-            let index = hourLabels.indexOf(`${hours}:00`)
-            detectionsPerHour[index]++;
-        }
-
-        let dateKey = `${day}.${month}.${year}`;
-
-        if (!alertsByDay[dateKey]) {
-            alertsByDay[dateKey] = [];
-        }
-
-        alertsByDay[dateKey].push({
-            detection_type: doc.data().detection_type,
-            classification: translate[doc.data().classification],
-            confidence: doc.data().confidence,
-            link: doc.data().link,
-            time: `${hours}:${minutes}:${seconds}`,
-            color_class: color_class,
-            doc_id: doc.id
-        });
     });
     alertsChart1.data.labels = hourLabels;
     alertsChart1.data.datasets[0].data = detectionsPerHour;
