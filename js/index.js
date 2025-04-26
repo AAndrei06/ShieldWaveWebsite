@@ -303,7 +303,7 @@ usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get().
                 let epoch_seconds = Math.round(new_date.getTime() / 1000);
 
                 const windowWidth = window.innerWidth;
-                if (epoch_seconds - doc.data().last_active <= 13 && doc.data().state == "active") {
+                if (epoch_seconds - doc.data().last_active <= 15 && doc.data().state == "active") {
 
                     activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Dezactivează</div>';
                     activate_btn = false;
@@ -335,9 +335,9 @@ document.querySelector('.deactivate').onclick = () => {
         querySnapshot.forEach(doc => {
             let new_date = new Date();
             let epoch_seconds = Math.round(new_date.getTime() / 1000);
-            if (epoch_seconds - doc.data().last_active > 13) {
+            if (epoch_seconds - doc.data().last_active > 15) {
                 showAlert("Atenție, sistemul nu este conectat sau e defect!!!");
-            } else if (epoch_seconds - doc.data().last_active <= 13 && doc.data().state == "active"){
+            } else if (epoch_seconds - doc.data().last_active <= 15 && doc.data().state == "active"){
 
                 usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
                 .then(userDocs => {
@@ -356,7 +356,7 @@ document.querySelector('.deactivate').onclick = () => {
                     console.error("Eroare la căutarea utilizatorului:", error);
                 });
 
-            } else if (epoch_seconds - doc.data().last_active <= 13 && doc.data().state == "inactive") {
+            } else if (epoch_seconds - doc.data().last_active <= 15 && doc.data().state == "inactive") {
 
 
                 usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
