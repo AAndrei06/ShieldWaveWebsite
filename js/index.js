@@ -102,12 +102,6 @@ async function getUserData() {
 getUserData()
     .then((userObject) => {
         document.querySelector('.plain-text-token').innerText = userToken;
-        /*
-        console.log(userObject);
-        if (userObject.activate == "no"){
-            activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
-        }*/
-    }).then(() => {
         document.body.style.display = "block";
     })
     .catch((error) => {
@@ -165,7 +159,7 @@ yesBtn.addEventListener("click", () => {
                     user.ref.update({
                         deactivateMic: "yes"
                     }).then(() => {
-                        showAlert("Microfonul se va dezactiva în 7 secunde!");
+                        showAlert("Microfonul se va dezactiva în câteva secunde!");
                         codeForBtnsAlert = "none";
                     }).catch(error => {
                         console.error("Eroare la actualizarea microfonului:", error);
@@ -177,14 +171,6 @@ yesBtn.addEventListener("click", () => {
                 console.error("Eroare la căutarea utilizatorului:", error);
             });
 
-        /*
-        microphoneDeactivateDB.add({
-            user_token: localStorage.getItem("userTokenShieldWave"),
-            state: true
-        }).then(() => {
-            showAlert("Microfonul se va dezactiva în 7 secunde!");
-            codeForBtnsAlert = "none";
-        });*/
 
     } else if (codeForBtnsAlert == "cameraDeactivateAsk") {
 
@@ -198,7 +184,7 @@ yesBtn.addEventListener("click", () => {
                     user.ref.update({
                         deactivateCam: "yes"
                     }).then(() => {
-                        showAlert("Camera se va dezactiva în 7 secunde!");
+                        showAlert("Camera se va dezactiva în câteva secunde!");
                         codeForBtnsAlert = "none";
                     }).catch(error => {
                         console.error("Eroare la actualizarea camerei:", error);
@@ -209,15 +195,6 @@ yesBtn.addEventListener("click", () => {
             }).catch(error => {
                 console.error("Eroare la căutarea utilizatorului:", error);
             });
-
-        /*
-        cameraDeactivateDB.add({
-            user_token: localStorage.getItem("userTokenShieldWave"),
-            state: true
-        }).then(() => {
-            showAlert("Camera se va dezactiva în 7 secunde!");
-            codeForBtnsAlert = "none";
-        });*/
 
     } else if (codeForBtnsAlert == "deactivateALL" && activate_btn == false) {
 
@@ -231,7 +208,7 @@ yesBtn.addEventListener("click", () => {
                     user.ref.update({
                         deactivateSystem: "yes"
                     }).then(() => {
-                        showAlert("Sistemul se va dezactiva în 7 secunde!");
+                        showAlert("Sistemul se va dezactiva în câteva secunde!");
                         codeForBtnsAlert = "none";
                         activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
                         activate_btn = true;
@@ -245,17 +222,6 @@ yesBtn.addEventListener("click", () => {
                 console.error("Eroare la căutarea utilizatorului:", error);
             });
 
-        /*
-        deactivationsDB.add({
-            user_token: localStorage.getItem("userTokenShieldWave"),
-            state: true
-        }).then(() => {
-            showAlert("Sistemul se va dezactiva în 7 secunde!");
-            codeForBtnsAlert = "none";
-            activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
-            activate_btn = true;
-        });*/
-
     } else if (codeForBtnsAlert == "activateALL" && activate_btn == true) {
 
         const userRef = db.collection("usersDB").where("token", "==", localStorage.getItem("userTokenShieldWave"));
@@ -268,7 +234,7 @@ yesBtn.addEventListener("click", () => {
                     user.ref.update({
                         activate: "yes"
                     }).then(() => {
-                        showAlert("Sistemul se va activa în 7 secunde!");
+                        showAlert("Sistemul se va activa în câteva secunde!");
                         codeForBtnsAlert = "none";
                         activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Deactivează</div>';
                         activate_btn = false;
@@ -281,16 +247,6 @@ yesBtn.addEventListener("click", () => {
             }).catch(error => {
                 console.error("Eroare la căutarea utilizatorului:", error);
             });
-
-        /*
-        activationsDB.add({
-            user_token: localStorage.getItem("userTokenShieldWave")
-        }).then(() => {
-            showAlert("Sistemul se va activa în 7 secunde!");
-            codeForBtnsAlert = "none";
-            activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Deactivează</div>';
-            activate_btn = false;
-        });*/
 
     } else if (codeForBtnsAlert == "logoutUser") {
 
@@ -347,7 +303,7 @@ usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get().
                 let epoch_seconds = Math.round(new_date.getTime() / 1000);
 
                 const windowWidth = window.innerWidth;
-                if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active") {
+                if (epoch_seconds - doc.data().last_active <= 13 && doc.data().state == "active") {
 
                     activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Dezactivează</div>';
                     activate_btn = false;
@@ -379,9 +335,9 @@ document.querySelector('.deactivate').onclick = () => {
         querySnapshot.forEach(doc => {
             let new_date = new Date();
             let epoch_seconds = Math.round(new_date.getTime() / 1000);
-            if (epoch_seconds - doc.data().last_active > 10) {
+            if (epoch_seconds - doc.data().last_active > 13) {
                 showAlert("Atenție, sistemul nu este conectat sau e defect!!!");
-            } else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active"){
+            } else if (epoch_seconds - doc.data().last_active <= 13 && doc.data().state == "active"){
 
                 usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
                 .then(userDocs => {
@@ -400,7 +356,7 @@ document.querySelector('.deactivate').onclick = () => {
                     console.error("Eroare la căutarea utilizatorului:", error);
                 });
 
-            } else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "inactive") {
+            } else if (epoch_seconds - doc.data().last_active <= 13 && doc.data().state == "inactive") {
 
 
                 usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
