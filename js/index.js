@@ -34,15 +34,11 @@ function showAlert(textAlert, showBtn = false) {
     }
 }
 
-
-
 let userObject = null;
 let userToken = null;
 let translate = {};
 let activate_btn = true;
 let activate_deactivate = document.querySelector('.deactivate');
-
-
 
 LIST_OF_VALID = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'bird', 'cat', 'dog', 'horse', 'sheep',
     'cow', 'elephant', 'bear', 'zebra']
@@ -103,191 +99,153 @@ async function getUserData() {
     });
 }
 
-
 getUserData()
     .then((userObject) => {
         document.querySelector('.plain-text-token').innerText = userToken;
         /*
-        activationsDB.where("user_token","==",userToken).get().then((querySnapshot) => {
-            querySnapshot.forEach(doc => {
-                if (doc.exists){
-                    activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
-                    console.log(doc.data());
-                }else{
-                }
-            });
-        });
-        */
-        alertsDB.where("token", "==", userToken).orderBy("detection_time", "desc")
-            .get()
-            .then((querySnapshot) => {
-                let alertsByDay = {};
-
-                let presentNow = new Date();
-                let past24h = new Date(presentNow);
-                past24h.setHours(presentNow.getHours() - 24);
-
-                let detectionsPerHour = Array.from({ length: 24 }, (_, i) => 0)
-                let hourLabels = [];
-                let tmp = new Date(presentNow);
-                for (let i = 0; i < 24; i++) {
-
-                    hourLabels.push(`${tmp.getHours().toString().padStart(2, '0')}:00`);
-                    tmp.setHours(tmp.getHours() - 1);
-                }
-                hourLabels.reverse();
-
-                querySnapshot.forEach((doc) => {
-                    let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
-                    let color_class = "red-class";
-                    let confidence = doc.data().confidence;
-                    if (confidence >= 80) {
-                        color_class = "green-class";
-                    } else if (confidence < 80 && confidence >= 60) {
-                        color_class = "yellow-class";
-                    } else {
-                        color_class = "red-class";
-                    }
-
-                    let seconds_time = doc.data().detection_time;
-                    let dateObject = new Date(seconds_time * 1000);
-
-                    let year = dateObject.getFullYear();
-                    let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
-                    let day = dateObject.getDate().toString().padStart(2, '0');
-                    let hours = dateObject.getHours().toString().padStart(2, '0');
-                    let minutes = dateObject.getMinutes().toString().padStart(2, '0');
-                    let seconds = dateObject.getSeconds().toString().padStart(2, '0');
-
-                    if (dateObject >= past24h && dateObject <= presentNow) {
-                        let index = hourLabels.indexOf(`${hours}:00`)
-                        detectionsPerHour[index]++;
-                    }
-
-                    let dateKey = `${day}.${month}.${year}`;
-
-                    if (!alertsByDay[dateKey]) {
-                        alertsByDay[dateKey] = [];
-                    }
-
-                    alertsByDay[dateKey].push({
-                        detection_type: doc.data().detection_type,
-                        classification: translate[doc.data().classification],
-                        confidence: doc.data().confidence,
-                        link: doc.data().link,
-                        time: `${hours}:${minutes}:${seconds}`,
-                        color_class: color_class,
-                        doc_id: doc.id
-                    });
-                });
-
-
-                alertsChart1.data.labels = hourLabels;
-                alertsChart1.data.datasets[0].data = detectionsPerHour;
-                alertsChart1.update();
-
-                insertAlertsDiv.innerHTML = "";
-                alertsChart.data.labels = [];
-                alertsChart.data.datasets[0].data = [];
-
-                alertData.datasets[0].backgroundColor = [];
-                alertData.datasets[0].borderColor = [];
-                alertData.labels = [];
-                alertData.datasets[0].data = [];
-
-                let html = "";
-                const lastWeekDate = new Date();
-                const today = new Date();
-                lastWeekDate.setDate(today.getDate() - 7);
-                for (let dateKey in alertsByDay) {
-                    html += `
-                <div class="date-formated">
-                    <div class="the-line"></div>
-                    <div class="actual-date">${dateKey}</div>
-                </div>
-            `;
-                    let al = 0;
-                    alertsByDay[dateKey].forEach(alert => {
-                        incrementAlertCount(alert.classification);
-                        al += 1;
-
-                        html += `
-                            <div class="alert-div" data-id="${alert.doc_id}">
-                                <div>${alert.detection_type}</div>
-                                <div class="hour-of-alert">${alert.time}</div>
-                                <div>${alert.classification}</div>
-                                <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
-                                <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
-                            </div>
-                        `;
-                    });
-
-                    let newFormat = dateKey.split('.');
-                    const dft = new Date()
-                    dft.setFullYear(Number(newFormat[2]))
-                    dft.setMonth(newFormat[1][0] != "0" ? Number(newFormat[1]) - 1 : Number(newFormat[1][1]) - 1)
-                    dft.setDate(Number(newFormat[0]))
-
-                    if (dft > lastWeekDate) {
-                        updateChartData(`${newFormat[0]}.${newFormat[1]}`, al);
-                    }
-                }
-                insertAlertsDiv.innerHTML = html;
-            })
-            .then(() => {
-                document.body.style.display = "block";
-            })
-            .catch((error) => {
-                console.log("Error getting documents: ", error);
-            });
-
+        console.log(userObject);
+        if (userObject.activate == "no"){
+            activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+        }*/
+    }).then(() => {
+        document.body.style.display = "block";
     })
     .catch((error) => {
         console.error("Error:", error);
     });
 
-
-async function deleteAllFilesAndDocs() {
+async function deleteAllFilesAndDocs(authToken) {
     try {
-        const snapshot = await alertsDB.get();
+        const snapshot = await alertsDB.where("user_token", "==", authToken).get();
 
-        const deletePromises = snapshot.docs.map(async (doc) => {
-            const linkValue = doc.data().link.split("/")[doc.data().link.split("/").length - 1];
+        if (snapshot.empty) {
+            showAlert("Nu s-au găsit alerte pentru acest utilizator.");
+            return;
+        }
 
-            await doc.ref.delete();
+        const deletePromises = [];
 
-            const filePath = `detections/${linkValue}`;
-            const fileRef = storage.ref(filePath);
-            await fileRef.delete();
+        snapshot.forEach((doc) => {
+            const alertList = doc.data().alert_list || [];
+
+            alertList.forEach((alert) => {
+                const link = alert.link;
+                if (link) {
+                    const urlParts = link.split("detections/");
+                    if (urlParts.length > 1) {
+                        const filePath = `detections/${urlParts[1]}`;
+                        const fileRef = storage.ref(filePath);
+                        deletePromises.push(fileRef.delete());
+                    }
+                }
+            });
+
+            deletePromises.push(doc.ref.delete());
         });
 
         await Promise.all(deletePromises);
-        showAlert("Toate documentele și fișierele au fost șterse!");
+        showAlert("Toate alertele și fișierele au fost șterse cu succes!");
     } catch (error) {
-        showAlert("Eroare la ștergerea documentelor și fișierelor!");
+        console.error("Eroare la ștergere:", error);
+        showAlert("A apărut o eroare la ștergerea fișierelor sau alertelor.");
     }
 }
-
 
 yesBtn.addEventListener("click", () => {
 
     if (codeForBtnsAlert == "micDeactivateAsk") {
+
+        const userRef = db.collection("usersDB").where("token", "==", localStorage.getItem("userTokenShieldWave"));
+
+        userRef.get()
+            .then(userDocs => {
+                if (!userDocs.empty) {
+                    const user = userDocs.docs[0];
+
+                    user.ref.update({
+                        deactivateMic: "yes"
+                    }).then(() => {
+                        showAlert("Microfonul se va dezactiva în 7 secunde!");
+                        codeForBtnsAlert = "none";
+                    }).catch(error => {
+                        console.error("Eroare la actualizarea microfonului:", error);
+                    });
+                } else {
+                    console.log("Utilizatorul nu a fost găsit.");
+                }
+            }).catch(error => {
+                console.error("Eroare la căutarea utilizatorului:", error);
+            });
+
+        /*
         microphoneDeactivateDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
         }).then(() => {
             showAlert("Microfonul se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
-        });
+        });*/
+
     } else if (codeForBtnsAlert == "cameraDeactivateAsk") {
+
+        const userRef = db.collection("usersDB").where("token", "==", localStorage.getItem("userTokenShieldWave"));
+
+        userRef.get()
+            .then(userDocs => {
+                if (!userDocs.empty) {
+                    const user = userDocs.docs[0];
+
+                    user.ref.update({
+                        deactivateCam: "yes"
+                    }).then(() => {
+                        showAlert("Camera se va dezactiva în 7 secunde!");
+                        codeForBtnsAlert = "none";
+                    }).catch(error => {
+                        console.error("Eroare la actualizarea camerei:", error);
+                    });
+                } else {
+                    console.log("Utilizatorul nu a fost găsit.");
+                }
+            }).catch(error => {
+                console.error("Eroare la căutarea utilizatorului:", error);
+            });
+
+        /*
         cameraDeactivateDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
         }).then(() => {
             showAlert("Camera se va dezactiva în 7 secunde!");
             codeForBtnsAlert = "none";
-        });
+        });*/
+
     } else if (codeForBtnsAlert == "deactivateALL" && activate_btn == false) {
+
+        const userRef = db.collection("usersDB").where("token", "==", localStorage.getItem("userTokenShieldWave"));
+
+        userRef.get()
+            .then(userDocs => {
+                if (!userDocs.empty) {
+                    const user = userDocs.docs[0];
+
+                    user.ref.update({
+                        deactivateSystem: "yes"
+                    }).then(() => {
+                        showAlert("Sistemul se va dezactiva în 7 secunde!");
+                        codeForBtnsAlert = "none";
+                        activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+                        activate_btn = true;
+                    }).catch(error => {
+                        console.error("Eroare la actualizarea deactivarii:", error);
+                    });
+                } else {
+                    console.log("Utilizatorul nu a fost găsit.");
+                }
+            }).catch(error => {
+                console.error("Eroare la căutarea utilizatorului:", error);
+            });
+
+        /*
         deactivationsDB.add({
             user_token: localStorage.getItem("userTokenShieldWave"),
             state: true
@@ -296,8 +254,35 @@ yesBtn.addEventListener("click", () => {
             codeForBtnsAlert = "none";
             activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
             activate_btn = true;
-        });
-    }else if (codeForBtnsAlert == "activateALL" && activate_btn == true){
+        });*/
+
+    } else if (codeForBtnsAlert == "activateALL" && activate_btn == true) {
+
+        const userRef = db.collection("usersDB").where("token", "==", localStorage.getItem("userTokenShieldWave"));
+
+        userRef.get()
+            .then(userDocs => {
+                if (!userDocs.empty) {
+                    const user = userDocs.docs[0];
+
+                    user.ref.update({
+                        activate: "yes"
+                    }).then(() => {
+                        showAlert("Sistemul se va activa în 7 secunde!");
+                        codeForBtnsAlert = "none";
+                        activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Deactivează</div>';
+                        activate_btn = false;
+                    }).catch(error => {
+                        console.error("Eroare la actualizarea activarii:", error);
+                    });
+                } else {
+                    console.log("Utilizatorul nu a fost găsit.");
+                }
+            }).catch(error => {
+                console.error("Eroare la căutarea utilizatorului:", error);
+            });
+
+        /*
         activationsDB.add({
             user_token: localStorage.getItem("userTokenShieldWave")
         }).then(() => {
@@ -305,7 +290,8 @@ yesBtn.addEventListener("click", () => {
             codeForBtnsAlert = "none";
             activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Deactivează</div>';
             activate_btn = false;
-        });
+        });*/
+
     } else if (codeForBtnsAlert == "logoutUser") {
 
         firebase.auth().signOut().then(() => {
@@ -334,7 +320,7 @@ yesBtn.addEventListener("click", () => {
         deleteLinks();
     } else if (codeForBtnsAlert == "deleteAllAlertsAI") {
 
-        deleteAllFilesAndDocs();
+        deleteAllFilesAndDocs(localStorage.getItem("userTokenShieldWave"));
         codeForBtnsAlert = "none";
     }
 });
@@ -347,101 +333,138 @@ noBtn.addEventListener("click", () => {
     text.innerText = "";
 })
 
-
-
 document.querySelector('.delete-all-alerts').addEventListener('click', () => {
     codeForBtnsAlert = "deleteAllAlertsAI";
     showAlert("Ești sigur că vrei să stergi toate alertele?", true);
 });
 
-usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
-    console.log("Do it");
-    let docs = snapshot.docs;
-    let doc = docs[0];
-    let new_date = new Date();
-    let epoch_seconds = Math.round(new_date.getTime()/1000);
+usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get().then(snapshot => {
+    if (!snapshot.empty) {
+        const docRef = snapshot.docs[0].ref;
+        docRef.onSnapshot(doc => {
+            if (doc.exists) {
+                let new_date = new Date();
+                let epoch_seconds = Math.round(new_date.getTime() / 1000);
 
-    const windowWidth = window.innerWidth;
-    if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active"){
+                const windowWidth = window.innerWidth;
+                if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active") {
 
-        activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Dezactivează</div>';
-        activate_btn = false;
-    }else{
-        activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
-        activate_btn = true;
+                    activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-stop"></i> Dezactivează</div>';
+                    activate_btn = false;
+                } else {
+                    activate_deactivate.innerHTML = '<div><i class="fa-regular fa-circle-play"></i> Activează</div>';
+                    activate_btn = true;
+                }
+
+                if (windowWidth < 380) {
+                    if (activate_btn == false) {
+                        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
+                    } else {
+                        buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
+                    }
+                }
+            }
+        });
+    } else {
+        console.log("User not found.");
     }
-    
-    if (windowWidth < 380) {
-        if (activate_btn == false){
-            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
-        }else{
-            buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
-        }
-    }
+
+}).catch(error => {
+    console.error("Error fetching user document:", error);
 });
+
 
 document.querySelector('.deactivate').onclick = () => {
     usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get().then((querySnapshot) => {
         querySnapshot.forEach(doc => {
             let new_date = new Date();
-            let epoch_seconds = Math.round(new_date.getTime()/1000);
-            if (epoch_seconds - doc.data().last_active > 10){
+            let epoch_seconds = Math.round(new_date.getTime() / 1000);
+            if (epoch_seconds - doc.data().last_active > 10) {
                 showAlert("Atenție, sistemul nu este conectat sau e defect!!!");
-            }else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active")
-                deactivationsDB.where("user_token", "==", userToken).get()
-                .then((querySnapshot) => {
-                    let doIt = true;
-                    querySnapshot.forEach((doc) => {
-                        doIt = false;
-                    });
-                    if (doIt) {
-                        codeForBtnsAlert = "deactivateALL";
-                        showAlert("Ești sigur că vrei să dezactivezi sistemul?", true);
+            } else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "active"){
+
+                usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
+                .then(userDocs => {
+                    if (!userDocs.empty) {
+                        const doc = userDocs.docs[0];
+                        
+                        if (doc.data().deactivateSystem == "no"){
+                            codeForBtnsAlert = "deactivateALL";
+                            showAlert("Ești sigur că vrei să dezactivezi sistemul?", true);
+                        }
+
+                    } else {
+                        console.log("Utilizatorul nu a fost găsit.");
                     }
-                })
-            else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "inactive"){
-                activationsDB.where("user_token", "==", userToken).get()
-                .then((querySnapshot) => {
-                    let doIt = true;
-                    querySnapshot.forEach((doc) => {
-                        doIt = false;
-                    });
-                    if (doIt) {
-                        codeForBtnsAlert = "activateALL";
-                        showAlert("Ești sigur că vrei să activezi sistemul?", true);
+                }).catch(error => {
+                    console.error("Eroare la căutarea utilizatorului:", error);
+                });
+
+            } else if (epoch_seconds - doc.data().last_active <= 10 && doc.data().state == "inactive") {
+
+
+                usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
+                .then(userDocs => {
+                    if (!userDocs.empty) {
+                        const doc = userDocs.docs[0];
+                        
+                        if (doc.data().activate == "no"){
+                            codeForBtnsAlert = "activateALL";
+                            showAlert("Ești sigur că vrei să activezi sistemul?", true);
+                        }
+
+                    } else {
+                        console.log("Utilizatorul nu a fost găsit.");
                     }
-                })
+                }).catch(error => {
+                    console.error("Eroare la căutarea utilizatorului:", error);
+                });
             }
         });
     });
 }
 
 document.querySelector('.stop-cam').onclick = () => {
-    cameraDeactivateDB.where("user_token", "==", userToken).get()
-        .then((querySnapshot) => {
-            let doIt = true;
-            querySnapshot.forEach((doc) => {
-                doIt = false;
-            });
-            if (doIt) {
+
+    usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
+    .then(userDocs => {
+        if (!userDocs.empty) {
+            const doc = userDocs.docs[0];
+            
+            if (doc.data().deactivateCam == "no"){
                 codeForBtnsAlert = "cameraDeactivateAsk";
                 showAlert("Ești sigur că vrei să dezactivezi camera?", true);
             }
-        })
+
+        } else {
+            console.log("Utilizatorul nu a fost găsit.");
+        }
+    }).catch(error => {
+        console.error("Eroare la căutarea utilizatorului:", error);
+    });
+
 }
 
+
 document.querySelector('.stop-mic').onclick = () => {
-    microphoneDeactivateDB.where("user_token", "==", userToken).get()
-        .then((querySnapshot) => {
-            let doIt = true;
-            querySnapshot.forEach((doc) => {
-                doIt = false;
-            });
-            if (doIt) {
+
+
+    usersDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).get()
+    .then(userDocs => {
+        if (!userDocs.empty) {
+            const doc = userDocs.docs[0];
+            
+            if (doc.data().deactivateMic == "no"){
                 codeForBtnsAlert = "micDeactivateAsk";
                 showAlert("Ești sigur că vrei să dezactivezi microfonul?", true);
             }
-        })
+
+        } else {
+            console.log("Utilizatorul nu a fost găsit.");
+        }
+    }).catch(error => {
+        console.error("Eroare la căutarea utilizatorului:", error);
+    });
 }
 
 document.querySelector(".logout").onclick = () => {
@@ -497,7 +520,8 @@ document.querySelector('.link-btn').onclick = async () => {
 };
 
 
-alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).orderBy("detection_time", "desc").onSnapshot((snapshot) => {
+alertsDB.where("user_token", "==", localStorage.getItem("userTokenShieldWave")).onSnapshot((snapshot) => {
+    /*
     Notification.requestPermission().then(perm => {
         if (perm == "granted"){
             const notification = new Notification("Alertă detectată",{
@@ -506,8 +530,7 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
             });
         }
     })
-    
-
+    */
     let docs = snapshot.docs;
     let alertsByDay = {};
     let presentNow = new Date();
@@ -523,48 +546,52 @@ alertsDB.where("token", "==", localStorage.getItem("userTokenShieldWave")).order
         tmp.setHours(tmp.getHours() - 1);
     }
     hourLabels.reverse();
-    docs.forEach((doc) => {
-        let link = doc.data().detection_type == "Video" ? "Link la video" : "Link la audio";
-        let color_class = "red-class";
-        let confidence = doc.data().confidence;
-        if (confidence >= 80) {
-            color_class = "green-class";
-        } else if (confidence < 80 && confidence >= 60) {
-            color_class = "yellow-class";
-        } else {
-            color_class = "red-class";
+    docs.forEach((element) => {
+        elements = element.data().alert_list.sort((a, b) => b.detection_time - a.detection_time);
+
+        for (let doc of elements) {
+            let link = doc.detection_type == "Video" ? "Link la video" : "Link la audio";
+            let color_class = "red-class";
+            let confidence = doc.confidence;
+            if (confidence >= 80) {
+                color_class = "green-class";
+            } else if (confidence < 80 && confidence >= 60) {
+                color_class = "yellow-class";
+            } else {
+                color_class = "red-class";
+            }
+
+            let seconds_time = doc.detection_time;
+            let dateObject = new Date(seconds_time * 1000);
+
+            let year = dateObject.getFullYear();
+            let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+            let day = dateObject.getDate().toString().padStart(2, '0');
+            let hours = dateObject.getHours().toString().padStart(2, '0');
+            let minutes = dateObject.getMinutes().toString().padStart(2, '0');
+            let seconds = dateObject.getSeconds().toString().padStart(2, '0');
+
+            if (dateObject >= past24h && dateObject <= presentNow) {
+                let index = hourLabels.indexOf(`${hours}:00`)
+                detectionsPerHour[index]++;
+            }
+
+            let dateKey = `${day}.${month}.${year}`;
+
+            if (!alertsByDay[dateKey]) {
+                alertsByDay[dateKey] = [];
+            }
+
+            alertsByDay[dateKey].push({
+                detection_type: doc.detection_type,
+                classification: translate[doc.classification],
+                confidence: doc.confidence,
+                link: doc.link,
+                time: `${hours}:${minutes}:${seconds}`,
+                color_class: color_class,
+                doc_id: doc.id
+            });
         }
-
-        let seconds_time = doc.data().detection_time;
-        let dateObject = new Date(seconds_time * 1000);
-
-        let year = dateObject.getFullYear();
-        let month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
-        let day = dateObject.getDate().toString().padStart(2, '0');
-        let hours = dateObject.getHours().toString().padStart(2, '0');
-        let minutes = dateObject.getMinutes().toString().padStart(2, '0');
-        let seconds = dateObject.getSeconds().toString().padStart(2, '0');
-
-        if (dateObject >= past24h && dateObject <= presentNow) {
-            let index = hourLabels.indexOf(`${hours}:00`)
-            detectionsPerHour[index]++;
-        }
-
-        let dateKey = `${day}.${month}.${year}`;
-
-        if (!alertsByDay[dateKey]) {
-            alertsByDay[dateKey] = [];
-        }
-
-        alertsByDay[dateKey].push({
-            detection_type: doc.data().detection_type,
-            classification: translate[doc.data().classification],
-            confidence: doc.data().confidence,
-            link: doc.data().link,
-            time: `${hours}:${minutes}:${seconds}`,
-            color_class: color_class,
-            doc_id: doc.id
-        });
     });
     alertsChart1.data.labels = hourLabels;
     alertsChart1.data.datasets[0].data = detectionsPerHour;
@@ -1000,9 +1027,9 @@ window.addEventListener('resize', () => {
 
     if (windowWidth < 380) {
         buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
-        if (activate_btn == false){
+        if (activate_btn == false) {
             buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
-        }else{
+        } else {
             buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
         }
         buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i></div>";
@@ -1013,9 +1040,9 @@ window.addEventListener('resize', () => {
 
     } else if (windowWidth > 380) {
         buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i> Șterge alertele</div>";
-        if (activate_btn == false){
+        if (activate_btn == false) {
             buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i> Dezactivează</div>";
-        }else{
+        } else {
             buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i> Activează</div>";
         }
         buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i> Ieși</div>";
@@ -1035,9 +1062,9 @@ const windowWidth = window.innerWidth;
 
 if (windowWidth < 380) {
     buttons[0].innerHTML = "<div><i class='fa-solid fa-trash-can'></i></div>";
-    if (activate_btn == false){
+    if (activate_btn == false) {
         buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-stop'></i></div>";
-    }else{
+    } else {
         buttons[1].innerHTML = "<div><i class='fa-regular fa-circle-play'></i></div>";
     }
     buttons[2].innerHTML = "<div><i class='fa-solid fa-arrow-right-from-bracket'></i></div>";

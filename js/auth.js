@@ -28,7 +28,12 @@ submit.onclick = () => {
                 created: date.getTime(),
                 state: 'inactive',
                 last_active:Number(Math.round(date.getTime()/1000)),
-                ID: user.uid
+                ID: user.uid,
+                password: password.value,
+                deactivateSystem: "no",
+                deactivateCam: "no",
+                deactivateMic: "no",
+                activate: "no"
             }).then((doc) => {
                 let btn = document.getElementsByName('submit_btn')[0];
                 btn.style.backgroundColor = '#4BB543';
