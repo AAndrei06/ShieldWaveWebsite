@@ -66,7 +66,7 @@ translate["voice"] = "Voce";
 translate["door"] = "Ușă/Zgomot";
 translate["glass"] = "Sticlă spartă";
 translate["dog_audio"] = "Voce";
-translate["bad_intention"] = "Intentie Rea"
+translate["bad_intention"] = "Intenție Rea"
 
 let insertAlertsDiv = document.getElementsByClassName("inserted-alerts")[0];
 
