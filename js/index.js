@@ -66,6 +66,7 @@ translate["voice"] = "Voce";
 translate["door"] = "Ușă/Zgomot";
 translate["glass"] = "Sticlă spartă";
 translate["dog_audio"] = "Voce";
+translate["bad_intention"] = "Intentie Rea"
 
 let insertAlertsDiv = document.getElementsByClassName("inserted-alerts")[0];
 
@@ -578,15 +579,27 @@ alertsDB.where("user_token", "==", localStorage.getItem("userTokenShieldWave")).
 
             al += 1;
             if (alert.classification != "")
-                html += `
-                <div class="alert-div" data-id="${alert.doc_id}">
-                    <div>${alert.detection_type}</div>
-                    <div class="hour-of-alert">${alert.time}</div>
-                    <div>${alert.classification}</div>
-                    <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
-                    <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
-                </div>
-            `;
+                if (alert.classification == "Intentie Rea"){
+                    html += `
+                        <div class="alert-div" data-id="${alert.doc_id}">
+                            <div>Limbaj</div>
+                            <div class="hour-of-alert">${alert.time}</div>
+                            <div>${alert.classification}</div>
+                            <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
+                            <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                        </div>
+                    `;
+                }else{
+                    html += `
+                        <div class="alert-div" data-id="${alert.doc_id}">
+                            <div>${alert.detection_type}</div>
+                            <div class="hour-of-alert">${alert.time}</div>
+                            <div>${alert.classification}</div>
+                            <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
+                            <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                        </div>
+                    `;
+                }
         });
         let newFormat = dateKey.split('.');
         const dft = new Date()
