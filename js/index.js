@@ -586,7 +586,7 @@ alertsDB.where("user_token", "==", localStorage.getItem("userTokenShieldWave")).
                             <div class="hour-of-alert">${alert.time}</div>
                             <div>${alert.classification}</div>
                             <div><div class="probability ${alert.color_class}">${alert.confidence}%</div></div>
-                            <div class="link-obj"><a href="${alert.link}">${alert.detection_type == "Video" ? "Link la video" : "Link la audio"}</a></div>
+                            <div class="link-obj"><a href="${alert.link}">Link la frază</a></div>
                         </div>
                     `;
                 }else{
