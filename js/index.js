@@ -579,7 +579,7 @@ alertsDB.where("user_token", "==", localStorage.getItem("userTokenShieldWave")).
 
             al += 1;
             if (alert.classification != "")
-                if (alert.classification == "Intentie Rea"){
+                if (alert.classification == "Intenție Rea"){
                     html += `
                         <div class="alert-div" data-id="${alert.doc_id}">
                             <div>Limbaj</div>
