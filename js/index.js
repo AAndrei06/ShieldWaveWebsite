@@ -47,6 +47,7 @@ LIST_OF_VALID = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'bird
 translate["person"] = "Persoană";
 translate["bicycle"] = "Bicicletă/Motocicletă";
 translate["motorcycle"] = "Bicicletă/Motocicletă";
+translate["car"] = "Vehicul";
 translate["bus"] = "Vehicul";
 translate["truck"] = "Vehicul";
 translate["bird"] = "Pasăre";
