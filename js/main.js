@@ -15,8 +15,38 @@ const usersDB = firebase.firestore().collection("usersDB");
 const alertsDB = firebase.firestore().collection("alerts");
 const linksDB = firebase.firestore().collection("links");
 
-function validateEmail(email){
+let translate = {};
+LIST_OF_VALID = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'bird', 'cat', 'dog', 'horse', 'sheep',
+  'cow', 'elephant', 'bear', 'zebra']
 
+//Video
+translate["person"] = "Persoană";
+translate["bicycle"] = "Bicicletă/Motocicletă";
+translate["motorcycle"] = "Bicicletă/Motocicletă";
+translate["car"] = "Vehicul";
+translate["bus"] = "Vehicul";
+translate["truck"] = "Vehicul";
+translate["bird"] = "Pasăre";
+translate["cat"] = "Animal";
+translate["dog"] = "Animal";
+translate["horse"] = "Animal";
+translate["sheep"] = "Animal";
+translate["cow"] = "Animal";
+translate["elephant"] = "Animal";
+translate["bear"] = "Animal";
+translate["zebra"] = "Animal";
+translate["Necunoscut"] = "Mișcare";
+
+// Audio
+translate["footsteps"] = "Pași/Bătăi";
+translate["voice"] = "Voce";
+translate["door"] = "Ușă/Zgomot";
+translate["glass"] = "Sticlă spartă";
+translate["dog_audio"] = "Voce";
+translate["bad_intention"] = "Intenție Rea"
+
+
+function validateEmail(email){
   return String(email)
       .toLowerCase()
       .match(
@@ -50,4 +80,23 @@ function showError(error,connect){
     btn.style.fontSize = "20px";
     btn.innerHTML = connect ? 'Conectează-te' : 'Înregistrează-te';
   },3000);
+}
+
+function showAlert(textAlert, showBtn = false) {
+  let alertsBtn = document.querySelector('.alert-btns');
+  alertsBtn.style.display = "flex";
+  if (!showBtn) {
+      alertsBtn.style.display = "none";
+  }
+  let alertDiv = document.getElementsByClassName("alert-bar")[0];
+  let text = alertDiv.getElementsByTagName("h3")[0];
+  text.innerText = textAlert;
+  alertDiv.style.display = "flex";
+
+  if (!showBtn) {
+      setTimeout(() => {
+          alertDiv.style.display = "none";
+          text.innerText = "";
+      }, 5000);
+  }
 }
